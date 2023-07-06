@@ -1,91 +1,84 @@
-/* global PIXI */
+import { Graphics, Text } from 'pixi.js';
+import { delayed_call } from './utils';
 
-/**
- * @constructor
- * @param {Config} config
- */
-function PlayerInfoPanel(config) {
-  PIXI.Graphics.apply(this);
+export default class PlayerInfoPanel extends Graphics {
+  _posX = 0;
+  _posY = 0;
+  _mass = 0;
+  _maxMass = 0;
 
-  Object.defineProperties(this, {
-    posX: {
-      set: function (value) {
-        if (posX != value) {
-          posX = value;
-          update();
-        }
-      }
-    },
-    posY: {
-      set: function (value) {
-        if (posY != value) {
-          posY = value;
-          update();
-        }
-      }
-    },
-    mass: {
-      set: function (value) {
-        if (mass != value) {
-          mass = value;
-          if (maxMass < mass) {
-            maxMass = mass;
-          }
-          update();
-        }
-      }
-    },
-    maxMass: {
-      set: function (value) {
-        if (maxMass != value) {
-          maxMass = value;
-          update();
-        }
-      }
-    }
-  });
+  _label = this.addChild(new Text('...'));
+  _labelWidth = 0;
+  _labelHeight = 0;
 
-  function update() {
-    if (timeoutId) {
-      return;
-    }
-    timeoutId = setTimeout(function() {
-      timeoutId = null;
-      var style = mass < maxMass ? 'lower' : 'best';
-      var fmt = posX + ';' + posY;
-      fmt += ' <property>mass:</property> <%1$s>' + mass + '</%1$s>';
-      fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
-      label.text = sprintf(fmt, style);
-      var width = label.width;
-      var height = label.height;
-      if (labelWidth != width || labelHeight != height) {
-        labelWidth = width;
-        labelHeight = height;
-        self.$resize(labelWidth + 16, labelHeight);
-      }
-    }, 250);
+  constructor(config) {
+    super();
+
+    this._config = config;
+
+    this._label.style = this._config.label;
+    this._label.position.x = 8;
+    this.update();
   }
 
-  this._theme = config.playerInfoPanel;
-  var self = this;
-  var posX = 0;
-  var posY = 0;
-  var mass = 0;
-  var maxMass = 0;
-  var label = this.addChild(new PIXI.MultiStyleText('...', this._theme._label));
-  label.position.x = 8;
-  var labelWidth = 0;
-  var labelHeight = 0;
-  var timeoutId = null;
-  update();
+  set posX(value) {
+    if (this._posX !== value) {
+      this._posX = value;
+      this.update();
+    }
+  }
+
+  set posY(value) {
+    if (this._posY !== value) {
+      this._posY = value;
+      this.update();
+    }
+  }
+
+  set mass(value) {
+    if (this._mass !== value) {
+      this._mass = value;
+      if (this._maxMass < value) {
+        this._maxMass = value;
+      }
+      this.update();
+    }
+  }
+
+  set maxMass(value) {
+    if (this._maxMass !== value) {
+      this._maxMass = value;
+      this.update();
+    }
+  }
+
+  update = delayed_call(() => this.doUpdate());
+
+  doUpdate() {
+    console.log('doUpdate');
+    // TODO: use multi style text
+    // let style = mass < maxMass ? 'lower' : 'best';
+    // let fmt = posX + ';' + posY;
+    // fmt += ' <property>mass:</property> <%1$s>' + mass + '</%1$s>';
+    // fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
+    // label.text = sprintf(fmt, style);
+    this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
+    let width = this._label.width;
+    let height = this._label.height;
+    if (this._labelWidth !== width || this._labelHeight !== height) {
+      this._labelWidth = width;
+      this._labelHeight = height;
+      this.resize(width + 16, height);
+    }
+  }
+
+  resize(width, height) {
+    this._width = width;
+    this._height = height;
+    this.clear();
+    this.lineStyle(this._config.lineStyle);
+    this.beginFill(this._config.fill[0], this._config.fill[1]);
+    this.drawRect(0, 0, this._width, this._height);
+    this.endFill();
+  }
 }
-
-PlayerInfoPanel.prototype = Object.create(PIXI.Graphics.prototype);
-
-PlayerInfoPanel.prototype.$resize = function (width, height) {
-  this.clear();
-  this.lineStyle(this._theme._lineStyle[0], this._theme._lineStyle[1], this._theme._lineStyle[2]);
-  this.beginFill(this._theme._fill[0], this._theme._fill[1]);
-  this.drawRect(0, 0, width, height);
-  this.endFill();
-};
