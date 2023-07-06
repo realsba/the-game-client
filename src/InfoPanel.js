@@ -1,4 +1,6 @@
-import { Graphics, Text, TextStyle } from 'pixi.js';
+import Panel from './Panel';
+import { Text } from 'pixi.js';
+import { delayed_call } from "./utils";
 
 class MovingAverage {
   _measurements = []; // TODO: implement circular buffer
@@ -30,20 +32,18 @@ class MovingAverage {
   };
 }
 
-export default class InfoPanel extends Graphics {
+export default class InfoPanel extends Panel {
   _ping = 0;
   _fpsAverage = new MovingAverage();
   _packetsIn = new MovingAverage();
   _packetsOut = new MovingAverage();
   _bytesIn = new MovingAverage();
   _bytesOut = new MovingAverage();
-  _updateInterval = 500;
 
   // TODO: use https://npm.io/package/pixi-tagged-text
   _label = this.addChild(new Text('...'));
   _connectionLabel = this.addChild(new Text('...'));
 
-  _lastUpdate = Date.now();
   _width = 0;
   _height = 0;
 
@@ -60,34 +60,34 @@ export default class InfoPanel extends Graphics {
 
   set fps(value) {
     this._fpsAverage.push(value);
-    this.onChange();
+    this.update();
   }
 
   set ping(value) {
     if (this._ping !== value) {
       this._ping = value;
-      this.onChange();
+      this.update();
     }
   }
 
   set packetsIn(value) {
     this._packetsIn.push(value);
-    this.onChange();
+    this.update();
   }
 
   set packetsOut(value) {
     this._packetsOut.push(value);
-    this.onChange();
+    this.update();
   }
 
   set bytesIn(value) {
     this._bytesIn.push(value);
-    this.onChange();
+    this.update();
   }
 
   set bytesOut(value) {
     this._bytesOut.push(value);
-    this.onChange();
+    this.update();
   }
 
   onChange() {
@@ -99,7 +99,9 @@ export default class InfoPanel extends Graphics {
     }
   }
 
-  update() {
+  update = delayed_call(() => this.#doUpdate());
+
+  #doUpdate() {
     let fps = this._fpsAverage.value();
     // let fpsStyle = fps >= 50 ? 'good' : (fps >= 30 ? 'normal' : 'bad');
     // let pingStyle = this._ping < 100 ? 'good' : (this._ping < 400 ? 'normal' : 'bad');
@@ -113,24 +115,17 @@ export default class InfoPanel extends Graphics {
     //   this._packetsIn.value(), this._packetsOut.value(),
     //   this._bytesIn.value(), this._bytesOut.value()
     // );
+    let bytesIn = this._bytesIn.value();
+    let bytesOut = this._bytesOut.value();
+    let packetsIn = this._packetsIn.value();
+    let packetsOut = this._packetsOut.value();
+    this._connectionLabel.text = `${bytesIn}/${bytesOut} ${packetsIn}/${packetsOut}`;
     let width = this._label.width;
     let height = this._label.height + this._connectionLabel.height;
-    if (this._width !== width || this._height !== height) {
-      this._width = width;
-      this._height = height;
-      //self.$resize(width + 16, height);
+    if (this._rectangleWidth !== width || this._rectangleHeight !== height) {
+      this._rectangleWidth = width;
+      this._rectangleHeight = height;
+      this.resize(width + 16, height);
     }
   }
 }
-
-// TODO: implement resizing
-// InfoPanel.prototype.$resize = function (width, height) {
-//   this.clear();
-//   this.lineStyle(this._theme._lineStyle[0], this._theme._lineStyle[1], this._theme._lineStyle[2]);
-//   this.beginFill(this._theme._fill[0], this._theme._fill[1]);
-//   this.drawRect(0, 0, width, height);
-//   this.endFill();
-//   if (this.onResize) {
-//     this.onResize();
-//   }
-// };

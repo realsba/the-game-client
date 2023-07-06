@@ -1,15 +1,16 @@
-import { Graphics, Text } from 'pixi.js';
+import Panel from './Panel';
+import { Text } from 'pixi.js';
 import { delayed_call } from './utils';
 
-export default class PlayerInfoPanel extends Graphics {
+export default class PlayerInfoPanel extends Panel {
   _posX = 0;
   _posY = 0;
   _mass = 0;
   _maxMass = 0;
 
   _label = this.addChild(new Text('...'));
-  _labelWidth = 0;
-  _labelHeight = 0;
+  _rectangleWidth = 0;
+  _rectangleHeight = 0;
 
   constructor(config) {
     super();
@@ -52,9 +53,9 @@ export default class PlayerInfoPanel extends Graphics {
     }
   }
 
-  update = delayed_call(() => this.doUpdate());
+  update = delayed_call(() => this.#doUpdate());
 
-  doUpdate() {
+  #doUpdate() {
     console.log('doUpdate');
     // TODO: use multi style text
     // let style = mass < maxMass ? 'lower' : 'best';
@@ -65,20 +66,10 @@ export default class PlayerInfoPanel extends Graphics {
     this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
     let width = this._label.width;
     let height = this._label.height;
-    if (this._labelWidth !== width || this._labelHeight !== height) {
-      this._labelWidth = width;
-      this._labelHeight = height;
+    if (this._rectangleWidth !== width || this._rectangleHeight !== height) {
+      this._rectangleWidth = width;
+      this._rectangleHeight = height;
       this.resize(width + 16, height);
     }
-  }
-
-  resize(width, height) {
-    this._width = width;
-    this._height = height;
-    this.clear();
-    this.lineStyle(this._config.lineStyle);
-    this.beginFill(this._config.fill[0], this._config.fill[1]);
-    this.drawRect(0, 0, this._width, this._height);
-    this.endFill();
   }
 }
