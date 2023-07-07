@@ -1,6 +1,6 @@
 import Panel from './Panel';
-import { Text } from 'pixi.js';
-import { delayed_call } from "./utils";
+import {Text} from 'pixi.js';
+import {delayed_call} from "./utils";
 
 class MovingAverage {
   _measurements = []; // TODO: implement circular buffer
@@ -44,8 +44,8 @@ export default class InfoPanel extends Panel {
   _label = this.addChild(new Text('...'));
   _connectionLabel = this.addChild(new Text('...'));
 
-  _width = 0;
-  _height = 0;
+  _rectangleWidth = 0;
+  _rectangleHeight = 0;
 
   constructor(config) {
     super();

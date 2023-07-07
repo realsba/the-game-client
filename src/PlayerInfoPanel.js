@@ -1,6 +1,6 @@
 import Panel from './Panel';
-import { Text } from 'pixi.js';
-import { delayed_call } from './utils';
+import {Text} from 'pixi.js';
+import {delayed_call} from './utils';
 
 export default class PlayerInfoPanel extends Panel {
   _posX = 0;
@@ -56,7 +56,6 @@ export default class PlayerInfoPanel extends Panel {
   update = delayed_call(() => this.#doUpdate());
 
   #doUpdate() {
-    console.log('doUpdate');
     // TODO: use multi style text
     // let style = mass < maxMass ? 'lower' : 'best';
     // let fmt = posX + ';' + posY;
