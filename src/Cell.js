@@ -1,9 +1,7 @@
-/* global PIXI */
-
 function blur(color, x) {
-  var r = (color >> 16) & 0xFF;
-  var g = (color >> 8) & 0xFF;
-  var b = color & 0xFF;
+  let r = (color >> 16) & 0xFF;
+  let g = (color >> 8) & 0xFF;
+  let b = color & 0xFF;
   r -= x;
   g -= x;
   b -= x;
@@ -27,7 +25,7 @@ function Animator() {
   this._finish = 0;
   this._step = 0;
   this._time = 0;
-};
+}
 
 Animator.prototype.init = function (current, finish, time) {
   this._current = current;
@@ -70,7 +68,7 @@ function PositionSmoother(current) {
  * @param {number} time
  */
 PositionSmoother.prototype.init = function (x, y, time) {
-  var step = new Vec2D((x - this._current._x) / time, (y - this._current._y) / time);
+  let step = new Vec2D((x - this._current._x) / time, (y - this._current._y) / time);
   if (step.squareLength() < 5 * 5) {
     return;
   }
@@ -126,7 +124,7 @@ CellDef.prototype.isMass = function () {
 };
 
 CellDef.prototype.isVirus = function () {
-  var type = this._type & 15;
+  let type = this._type & 15;
   return type == 4 || type == 5;
 };
 
@@ -168,7 +166,7 @@ function Cell(room, def, scale) {
 
   this._graphics = new PIXI.Graphics();
   this._graphics.object = this;
-  var position = this._position.scalarProduct(this._scale);
+  let position = this._position.scalarProduct(this._scale);
   this._graphics.position.x = position._x;
   this._graphics.position.y = position._y;
 
@@ -179,7 +177,7 @@ function Cell(room, def, scale) {
 
   this._graphics.interactive = true;
   this._graphics.on('mousedown', function (mouse) {
-    var event = mouse.data.originalEvent;
+    let event = mouse.data.originalEvent;
     if (event.ctrlKey && event.altKey) {
       console.log(mouse.target.object.toString());
     }
@@ -244,9 +242,9 @@ Cell.prototype.isAnimated = function () {
 };
 
 Cell.prototype.simulateInternal = function (dt, resistanceRatio) {
-  var scalar = this._radius * resistanceRatio;
+  let scalar = this._radius * resistanceRatio;
   this._force.assignmentDifference(this._velocity.direction().scalarProduct(scalar));
-  var acceleration = this._force.scalarDivision(this._mass);
+  let acceleration = this._force.scalarDivision(this._mass);
   this._velocity.assignmentSum(acceleration.scalarProduct(dt));
   this._position.assignmentSum(this._velocity.scalarProduct(dt));
   this._positionSmoother.smooth(dt);
@@ -261,8 +259,8 @@ Cell.prototype.simulate = function (dt) {
 };
 
 Cell.prototype.animate = function (dt) {
-  var redraw = false;
-  var res = this._radiusAnimator.animate(dt);
+  let redraw = false;
+  let res = this._radiusAnimator.animate(dt);
   if (res !== false) {
     this._viewRadius = res;
     redraw = true;
@@ -338,7 +336,7 @@ function Avatar(room, def, scale) {
 
   this._massAnimator = new Animator();
 
-  var fontSize = Math.max((this.textSize * scale) >> 0, 8);
+  let fontSize = Math.max((this.textSize * scale) >> 0, 8);
   this._text = new PIXI.Text(
     this._name,
     {
@@ -369,10 +367,10 @@ function Avatar(room, def, scale) {
   this.updateTextPosition();
 
   this._graphics.on('mousedown', function (mouse) {
-    var event = mouse.data.originalEvent;
+    let event = mouse.data.originalEvent;
     if (event.ctrlKey && !event.altKey) {
-      var avatar = mouse.target.object;
-      var binary = new jBinary(5);
+      let avatar = mouse.target.object;
+      let binary = new jBinary(5);
       binary.writeUInt8(10);
       binary.writeUInt32(avatar._playerId);
       avatar._room._socket.send(binary.view.buffer);
@@ -380,7 +378,7 @@ function Avatar(room, def, scale) {
     mouse.stopPropagation();
   });
 
-//  var baseTexture = new PIXI.BaseTexture.fromImage('img/car2.png');
+//  let baseTexture = new PIXI.BaseTexture.fromImage('img/car2.png');
 //  if (baseTexture.hasLoaded) {
 //    this.createSprite(baseTexture);
 //  } else {
@@ -396,7 +394,7 @@ Avatar.prototype.textSize = 24;
 Avatar.prototype.textMassSize = 8;
 
 //Avatar.prototype.createSprite = function(baseTexture) {
-//  var texture = new PIXI.Texture(baseTexture);
+//  let texture = new PIXI.Texture(baseTexture);
 //  this._sprite = this._graphics.addChildAt(new PIXI.Sprite(texture), 0);
 //  this._sprite.anchor.x = 0.5;
 //  this._sprite.anchor.y = 0.5;
@@ -405,10 +403,10 @@ Avatar.prototype.textMassSize = 8;
 
 Avatar.prototype.setScale = function (scale) {
   Cell.prototype.setScale.apply(this, arguments);
-  var textStyle = this._text.style;
+  let textStyle = this._text.style;
   textStyle['font'] = 'bold ' + (this.textSize * scale) + 'px Arial';
   this._text['style'] = textStyle;
-  var textMassStyle = this._textMass.style;
+  let textMassStyle = this._textMass.style;
   textMassStyle['font'] = 'bold ' + (this.textMassSize * scale) + 'px Arial';
   this._textMass['style'] = textMassStyle;
   this.updateTextPosition();
@@ -424,7 +422,7 @@ Avatar.prototype.updateTextPosition = function () {
 //Avatar.prototype.setRadius = function (radius) {
 //  Cell.prototype.setRadius.apply(this, arguments);
 //  if (this._sprite) {
-//    var scale  = this._scale * 2 * radius / this._spriteOrigWidth;
+//    let scale  = this._scale * 2 * radius / this._spriteOrigWidth;
 //    this._sprite.scale.x = scale;
 //    this._sprite.scale.y = scale;
 //  }
@@ -447,7 +445,7 @@ Avatar.prototype.isAnimated = function () {
 
 Avatar.prototype.animate = function (dt) {
   Cell.prototype.animate.apply(this, arguments);
-  var res = this._massAnimator.animate(dt);
+  let res = this._massAnimator.animate(dt);
   if (res !== false) {
     this._viewMass = res;
     this._textMass.text = ~~res;
@@ -474,13 +472,13 @@ Virus.prototype = Object.create(Cell.prototype);
 Virus.prototype._className = 'Virus';
 
 Virus.prototype.draw = function () {
-  var path = [];
-  var n = 16;
-  var alpha = 0;
-  var angle = Math.PI / n;
-  var r1 = this._viewRadius * this._scale;
-  var r2 = 1.075 * this._viewRadius * this._scale;
-  for (var i = 0; i <= n; ++i) {
+  let path = [];
+  let n = 16;
+  let alpha = 0;
+  let angle = Math.PI / n;
+  let r1 = this._viewRadius * this._scale;
+  let r2 = 1.075 * this._viewRadius * this._scale;
+  for (let i = 0; i <= n; ++i) {
     path.push(r1 * Math.sin(alpha), r1 * Math.cos(alpha));
     alpha += angle;
     path.push(r2 * Math.sin(alpha), r2 * Math.cos(alpha));

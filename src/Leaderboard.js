@@ -1,6 +1,6 @@
 import Panel from './Panel';
-import {Graphics, Text} from 'pixi.js'
-import {delayed_call} from "./utils";
+import { Graphics, Text } from 'pixi.js'
+import { delayed_call } from "./utils";
 
 export default class Leaderboard extends Panel {
   _items = [];
@@ -10,10 +10,8 @@ export default class Leaderboard extends Panel {
   _labels = {};
   _onMouseDown = null;
 
-  constructor(config) {
-    super();
-
-    this._config = config;
+  constructor(view, config) {
+    super(view, config);
 
     this._title.style = this._config.title;
     this._title.x = 0.5 * (this.width - this._title.width);
@@ -33,7 +31,8 @@ export default class Leaderboard extends Panel {
     }
     this._list.x = 8;
     this._list.y = this._title.height;
-    this.update();
+
+    this.#doUpdate();
   }
 
   set onMouseDown(value) {
@@ -70,9 +69,7 @@ export default class Leaderboard extends Panel {
     if (width < 200) {
       width = 200;
     }
-    if (this._rectangleWidth !== width || this._rectangleHeight !== height) {
-      this._rectangleWidth = width;
-      this._rectangleHeight = height;
+    if (this._box.width !== width || this._box.height !== height) {
       this.resize(width, height);
       this._title.x = 0.5 * (this.width - this._title.width);
     }

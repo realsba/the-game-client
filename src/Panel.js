@@ -1,11 +1,17 @@
-import { Graphics } from 'pixi.js';
+import { Graphics, Rectangle } from 'pixi.js';
 
 export default class Panel extends Graphics {
   _onResize = null;
+  _box = new Rectangle;
 
-  constructor(config) {
+  constructor(view, config) {
     super();
-    this._config = config;
+
+    if (view) {
+      view.addChild(this);
+    }
+
+    this._config = config || {};
   }
 
   set onResize(value) {
@@ -13,6 +19,11 @@ export default class Panel extends Graphics {
   }
 
   resize(width, height) {
+    if (this._box.width === width && this._box.height === height) {
+      return;
+    }
+    this._box.width = width;
+    this._box.height = height;
     this.clear();
     this.lineStyle(this._config.lineStyle);
     this.beginFill(this._config.fill[0], this._config.fill[1]);

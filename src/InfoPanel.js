@@ -1,6 +1,6 @@
 import Panel from './Panel';
-import {Text} from 'pixi.js';
-import {delayed_call} from "./utils";
+import { Text } from 'pixi.js';
+import { delayed_call } from "./utils";
 
 class MovingAverage {
   _measurements = []; // TODO: implement circular buffer
@@ -44,18 +44,17 @@ export default class InfoPanel extends Panel {
   _label = this.addChild(new Text('...'));
   _connectionLabel = this.addChild(new Text('...'));
 
-  _rectangleWidth = 0;
-  _rectangleHeight = 0;
+  constructor(view, config) {
+    super(view, config);
 
-  constructor(config) {
-    super();
-    this._config = config;
     this._label.x = 8;
     this._label.style = this._config.label.def;
+
     this._connectionLabel.x = 8;
     this._connectionLabel.y = this._label.y + this._label.height;
     this._connectionLabel.style = this._config.label.good;
-    this.update();
+
+    this.#doUpdate();
   }
 
   set fps(value) {
@@ -120,12 +119,8 @@ export default class InfoPanel extends Panel {
     let packetsIn = this._packetsIn.value();
     let packetsOut = this._packetsOut.value();
     this._connectionLabel.text = `${bytesIn}/${bytesOut} ${packetsIn}/${packetsOut}`;
-    let width = this._label.width;
+    let width = this._label.width + 16;
     let height = this._label.height + this._connectionLabel.height;
-    if (this._rectangleWidth !== width || this._rectangleHeight !== height) {
-      this._rectangleWidth = width;
-      this._rectangleHeight = height;
-      this.resize(width + 16, height);
-    }
+    this.resize(width, height);
   }
 }

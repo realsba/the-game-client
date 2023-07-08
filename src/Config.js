@@ -52,7 +52,7 @@ export default class Config {
     }
   };
   directionPanel = {
-    lineStyle: [1, 0x777777, 1],
+    lineStyle: { width: 1, color: 0x777777, alpha: 1 },
     fill: [0x777777, 0.5],
     label: {
       def: { font: 'bold 20pt Arial', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 }

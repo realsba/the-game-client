@@ -1,6 +1,6 @@
 import Panel from './Panel';
-import {Text} from 'pixi.js';
-import {delayed_call} from './utils';
+import { Text } from 'pixi.js';
+import { delayed_call } from './utils';
 
 export default class PlayerInfoPanel extends Panel {
   _posX = 0;
@@ -12,14 +12,13 @@ export default class PlayerInfoPanel extends Panel {
   _rectangleWidth = 0;
   _rectangleHeight = 0;
 
-  constructor(config) {
-    super();
-
-    this._config = config;
+  constructor(view, config) {
+    super(view, config);
 
     this._label.style = this._config.label;
     this._label.position.x = 8;
-    this.update();
+
+    this.#doUpdate();
   }
 
   set posX(value) {
@@ -63,12 +62,8 @@ export default class PlayerInfoPanel extends Panel {
     // fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
     // label.text = sprintf(fmt, style);
     this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
-    let width = this._label.width;
+    let width = this._label.width + 16;
     let height = this._label.height;
-    if (this._rectangleWidth !== width || this._rectangleHeight !== height) {
-      this._rectangleWidth = width;
-      this._rectangleHeight = height;
-      this.resize(width + 16, height);
-    }
+    this.resize(width, height);
   }
 }
