@@ -1,4 +1,4 @@
-import Panel from './Panel';
+import Panel from './ui/Panel';
 import { Text } from 'pixi.js';
 import { delayed_call } from "./utils";
 
@@ -52,7 +52,7 @@ export default class InfoPanel extends Panel {
 
     this._connectionLabel.x = 8;
     this._connectionLabel.y = this._label.y + this._label.height;
-    this._connectionLabel.style = this._config.label.good;
+    this._connectionLabel.style = this._config.connectionLabel;
 
     this.#doUpdate();
   }
@@ -89,19 +89,10 @@ export default class InfoPanel extends Panel {
     this.update();
   }
 
-  onChange() {
-    let now = Date.now();
-    let dt = now - this._lastUpdate;
-    if (dt >= this._updateInterval) {
-      this._lastUpdate = now;
-      this.update();
-    }
-  }
-
   update = delayed_call(() => this.#doUpdate());
 
   #doUpdate() {
-    let fps = this._fpsAverage.value();
+    const fps = this._fpsAverage.value();
     // let fpsStyle = fps >= 50 ? 'good' : (fps >= 30 ? 'normal' : 'bad');
     // let pingStyle = this._ping < 100 ? 'good' : (this._ping < 400 ? 'normal' : 'bad');
     // this.#label.text = sprintf(
@@ -114,13 +105,15 @@ export default class InfoPanel extends Panel {
     //   this._packetsIn.value(), this._packetsOut.value(),
     //   this._bytesIn.value(), this._bytesOut.value()
     // );
-    let bytesIn = this._bytesIn.value();
-    let bytesOut = this._bytesOut.value();
-    let packetsIn = this._packetsIn.value();
-    let packetsOut = this._packetsOut.value();
+    const bytesIn = this._bytesIn.value();
+    const bytesOut = this._bytesOut.value();
+    const packetsIn = this._packetsIn.value();
+    const packetsOut = this._packetsOut.value();
     this._connectionLabel.text = `${bytesIn}/${bytesOut} ${packetsIn}/${packetsOut}`;
-    let width = this._label.width + 16;
-    let height = this._label.height + this._connectionLabel.height;
-    this.resize(width, height);
+    const width = this._label.width + 16;
+    const height = this._label.height + this._connectionLabel.height;
+    if (this.resize(width, height)) {
+      this.draw();
+    }
   }
 }

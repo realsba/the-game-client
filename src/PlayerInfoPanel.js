@@ -1,4 +1,4 @@
-import Panel from './Panel';
+import Panel from './ui/Panel';
 import { Text } from 'pixi.js';
 import { delayed_call } from './utils';
 
@@ -9,8 +9,6 @@ export default class PlayerInfoPanel extends Panel {
   _maxMass = 0;
 
   _label = this.addChild(new Text('...'));
-  _rectangleWidth = 0;
-  _rectangleHeight = 0;
 
   constructor(view, config) {
     super(view, config);
@@ -62,8 +60,8 @@ export default class PlayerInfoPanel extends Panel {
     // fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
     // label.text = sprintf(fmt, style);
     this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
-    let width = this._label.width + 16;
-    let height = this._label.height;
-    this.resize(width, height);
+    if (this.resize(this._label.width + 16, this._label.height)) {
+      this.draw();
+    }
   }
 }
