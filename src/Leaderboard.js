@@ -1,6 +1,6 @@
 import Panel from './ui/Panel';
-import { Graphics, Text } from 'pixi.js'
-import { delayed_call } from "./utils";
+import { Graphics, Text } from 'pixi.js';
+import { delayed_call } from './utils';
 
 export default class Leaderboard extends Panel {
   _items = [];
@@ -18,9 +18,9 @@ export default class Leaderboard extends Panel {
     this._title.y = 4;
 
     for (let i=0; i<20; ++i) {
-      let label = this._list.addChild(new Text('', this._config.list));
+      let label = this._list.addChild(new Text('', this._config.list.def));
       this._labels[i] = label;
-      label.interactive = true;
+      label.eventMode = 'static';
       label.y = this._labels[i].height * i;
       label.visible = false;
       label.on('mousedown', (mouse) => {

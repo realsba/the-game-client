@@ -5,6 +5,7 @@ import DirectionPanel from './DirectionPanel';
 import PlayerInfoPanel from './PlayerInfoPanel';
 import Leaderboard from './Leaderboard';
 import Room from './Room';
+import { Food, Virus, Mother, Avatar, CellDef } from './Cell';
 
 import './style.css';
 
@@ -13,6 +14,17 @@ document.body.appendChild(app.view);
 
 const config = new Config();
 const room = new Room(app.stage, config);
+
+const def = new CellDef();
+def._x = 300;
+def._y = 200;
+def._color = '#FF0000';
+def._radius = 64;
+def._type = 4 | 64;
+def._name = 'sba';
+def._mass = 10000;
+const virus = new Avatar(room, def, 1);
+virus.draw();
 
 let infoPanel = new InfoPanel(room, config.infoPanel);
 infoPanel.x = 8;
@@ -29,6 +41,7 @@ playerInfoPanel.x = 8;
 let elapsed = 0.0;
 app.ticker.add((delta) => {
   elapsed += delta;
+  virus.animate(delta);
   //graphics.x = 200.0 + Math.cos(elapsed/100.0) * 200.0;
   //graphics.y = 200.0 + Math.sin(elapsed/100.0) * 200.0;
 });

@@ -1,4 +1,4 @@
-import { Graphics, Sprite, Texture, Text } from "pixi.js";
+import { Graphics, Sprite, Texture, Text } from 'pixi.js';
 
 export default class DirectionPanel extends Graphics {
   _textures = {};

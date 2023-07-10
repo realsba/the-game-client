@@ -18,7 +18,7 @@ export default class Config {
     },
     list: {
       def: { font: 'bold 16pt Arial', fill: '#999999', stroke: '#555555', strokeThickness: 1 },
-      self: { font: 'bold 16pt Arial', fill: '#BB8080', stroke: '#555555', strokeThickness: 1 },
+      self: { font: 'bold 16pt Arial', fill: '#BB8080', stroke: '#A04040', strokeThickness: 1 },
       mass: { font: 'italic 12pt Arial', fill: '#888888', stroke: '#555555', strokeThickness: 1, valign: 'bottom'}
     }
   };

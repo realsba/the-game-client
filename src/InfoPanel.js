@@ -1,6 +1,6 @@
 import Panel from './ui/Panel';
 import { Text } from 'pixi.js';
-import { delayed_call } from "./utils";
+import { delayed_call } from './utils';
 
 class MovingAverage {
   _measurements = []; // TODO: implement circular buffer
