@@ -5,6 +5,18 @@ export default class Player {
   _mass = 0;
   _avatars = new Set();
 
+  get x() {
+    return this._x;
+  }
+
+  get y() {
+    return this._y;
+  }
+
+  get mass() {
+    return this._mass;
+  }
+
   addAvatar(avatar) {
     this._avatars.add(avatar);
   };

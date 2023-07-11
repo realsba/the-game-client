@@ -154,7 +154,6 @@ export class Cell extends PIXI.Graphics {
 
     this._positionSmoother = new PositionSmoother(this._position);
 
-    //this._graphics.object = this; // TODO: Extend Cell from PIXI.Graphics
     let position = this._position.scalarProduct(this._scale);
     this.position.x = position._x;
     this.position.y = position._y;
@@ -185,11 +184,6 @@ export class Cell extends PIXI.Graphics {
     this.radius = def._radius;
     this.mass = def._mass;
     this._positionSmoother.init(def._x, def._y, 0.25);
-//  this._position._x = def._x;
-//  this._position._y = def._y;
-//  if (def._protection) {
-//    this._protection = def._protection;
-//  }
   };
 
   draw() {
@@ -244,7 +238,6 @@ export class Cell extends PIXI.Graphics {
   };
 
   animate(dt) {
-    dt *= 0.02; // TODO: remove
     let redraw = false;
     let res = this._radiusAnimator.animate(dt);
     if (res !== false) {
@@ -300,7 +293,6 @@ export class Avatar extends Cell {
     this._name = def._name;
     this._viewMass = this._mass;
     this._maxSpeed = 0;
-    this._protection = 0;
 
     this._massAnimator = new Animator();
 
