@@ -24,6 +24,7 @@ export default class Control extends Graphics {
     }
     this._box.width = width;
     this._box.height = height;
+    this.draw();
     if (this._onResize) {
       this._onResize();
     }

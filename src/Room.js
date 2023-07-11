@@ -43,9 +43,11 @@ export default class Room extends PIXI.Container {
 
     this._playerInfoPanel = new PlayerInfoPanel(this, config.playerInfoPanel);
     this._playerInfoPanel.x = 8;
+    this._playerInfoPanel.onResize = () => this.placePlayerInfoPanel();
 
     this._infoPanel = new InfoPanel(this, config.infoPanel);
-    this._infoPanel.x = 8;
+    this._infoPanel.y = 8;
+    this._infoPanel.onResize = () => this.placeInfoPanel();
 
     //directionPanel = this.graphics.addChild(new DirectionPanel(config));
     // this.directionPanel.x = this.leaderboard.x + this.leaderboard.width + 32 + 8;
@@ -229,11 +231,19 @@ export default class Room extends PIXI.Container {
     this._gridLayer.position.y = y % gridSize;
   };
 
+  placePlayerInfoPanel() {
+    this._playerInfoPanel.y = this._screenHeight - this._playerInfoPanel.height - 8;
+  }
+
+  placeInfoPanel() {
+    this._infoPanel.x = this._screenWidth - this._infoPanel.width - 8;
+  }
+
   setScreenSize(width, height) {
     this._screenWidth = width;
     this._screenHeight = height;
-    this._playerInfoPanel.y = height - this._playerInfoPanel.height - 8;
-    this._infoPanel.x = width - this._infoPanel.width - 8;
+    this.placePlayerInfoPanel();
+    this.placeInfoPanel();
     this.onChangeScale();
   };
 

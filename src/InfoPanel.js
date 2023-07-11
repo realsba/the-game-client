@@ -112,8 +112,6 @@ export default class InfoPanel extends Panel {
     this._connectionLabel.text = `${bytesIn}/${bytesOut} ${packetsIn}/${packetsOut}`;
     const width = this._label.width + 16;
     const height = this._label.height + this._connectionLabel.height;
-    if (this.resize(width, height)) {
-      this.draw();
-    }
+    this.resize(width, height);
   }
 }

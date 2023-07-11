@@ -70,7 +70,6 @@ export default class Leaderboard extends Panel {
       width = 200;
     }
     if (this.resize(width, height)) {
-      this.draw();
       this._title.x = 0.5 * (this.width - this._title.width);
     }
   }

@@ -60,8 +60,6 @@ export default class PlayerInfoPanel extends Panel {
     // fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
     // label.text = sprintf(fmt, style);
     this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
-    if (this.resize(this._label.width + 16, this._label.height)) {
-      this.draw();
-    }
+    this.resize(this._label.width + 16, this._label.height);
   }
 }
