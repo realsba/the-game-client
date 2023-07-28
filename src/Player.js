@@ -53,3 +53,11 @@ export default class Player {
     }
   };
 }
+
+export class PlayerInfo {
+  constructor(id, name, status) {
+    this.id = id;
+    this.name = name;
+    this.status = status;
+  }
+}
