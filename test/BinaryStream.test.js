@@ -70,4 +70,11 @@ describe('BinaryStream', () => {
       stream.buffer.byteLength.should.equal(8);
     });
   });
+  describe('constructor', () => {
+    it('numeric argument should produce creation of new ArrayBuffer', () => {
+      const stream = new BinaryStream(256);
+      stream.byteLength.should.equal(256);
+      stream.buffer.byteLength.should.equal(0);
+    });
+  });
 });

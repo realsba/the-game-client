@@ -4,6 +4,9 @@ export default class BinaryStream {
   #uint8Array = null;
 
   constructor(buffer) {
+    if (typeof buffer === 'number') {
+      buffer = new ArrayBuffer(buffer);
+    }
     if (!buffer) {
       buffer = new ArrayBuffer(32);
     }

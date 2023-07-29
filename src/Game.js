@@ -1,6 +1,7 @@
 import BinaryStream from './BinaryStream';
 import {PlayerInfo} from './Player';
 import Room from './Room';
+import {CellDef} from "./Cell.js";
 
 export default class Game {
   _room = null;
@@ -227,27 +228,38 @@ export default class Game {
 
   ping() {
     if (this._socket) {
-      let stream = new BinaryStream();
+      const stream = new BinaryStream();
       stream.writeUInt8(1);
       this.send(stream.buffer);
       this._lastPingTime = Date.now();
     }
   }
 
-  onPacketPong() {
+  /**
+   * @param {BinaryStream} stream
+   */
+  onPacketPong(stream) {
     const now = Date.now();
     this._room.infoPanel.ping = (now - this._lastPingTime) >> 0;
     this._lastPingTime = now;
     setTimeout(() => this.ping(), 2500);
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketGreeting(stream) {
     const sid = stream.readString();
     if (sid) {
       localStorage.setItem('sid', sid);
     }
+    // TODO: remove the following temporary code
+    this.actionPlay('sba', 2);
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketRoom(stream) {
     const width = stream.readUInt16();
     const height = stream.readUInt16();
@@ -290,68 +302,75 @@ export default class Game {
     this._ready = true;
   }
 
-  // /**
-  //  * @param {BinaryStream} stream
-  //  */
-  // function onPacketFrame(stream) {
-  //   let now = Date.now();
-  //   let tick = stream.readUInt32();
-  //   let scale = stream.readFloat();
-  //   let cellDefs = [];
-  //   let cnt = stream.readUInt16();
-  //   for (; cnt>0; --cnt) {
-  //     let def = new CellDef();
-  //     cellDefs.push(def);
-  //     def._type = stream.readUInt8();
-  //     def._id = stream.readUInt32();
-  //     def._x = stream.readFloat();
-  //     def._y = stream.readFloat();
-  //     def._mass = stream.readUInt32();
-  //     def._radius = stream.readUInt16();
-  //     def._color = stream.readUInt8();
-  //     if (def.isAvatar()) {
-  //       def._playerId = stream.readUInt32();
-  //       def._name = players[def._playerId]._name;
-  //       // def._protection = stream.readUInt32();
-  //     }
-  //     if (def.isMoving()) {
-  //       def._vx = stream.readFloat();
-  //       def._vy = stream.readFloat();
-  //     }
-  //     def._color = colors[def._color];
-  //   }
-  //   let removed = stream.read(['arr16', 'uint32']);
-  //   let selfAvatarsInfo = stream.read(['arr8', {'id': 'uint32', 'maxSpeed': 'float', 'protection': 'uint32'}]);
-  //   room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
-  //   let arrowPlayerId = stream.readUInt32();
-  //   if (arrowPlayerId != room._arrowPlayerId) {
-  //     if (arrowPlayerId) {
-  //       room._arrowPlayerX = stream.readFloat();
-  //       room._arrowPlayerY = stream.readFloat();
-  //       if (room._directionPanel._player != players[arrowPlayerId]) {
-  //         room._directionPanel._label.text = players[arrowPlayerId]._name;
-  //         room._directionPanel._player = players[arrowPlayerId];
-  //         room._directionPanel.update();
-  //       }
-  //       room._directionPanel.visible = true;
-  //     } else {
-  //       room._directionPanel.visible = false;
-  //     }
-  //   }
-  // }
-//
+  /**
+   * @param {BinaryStream} stream
+   */
+  onPacketFrame(stream) {
+    const now = Date.now();
+    const tick = stream.readUInt32();
+    const scale = stream.readFloat();
+    const cellDefs = [];
+    let cnt = stream.readUInt16();
+    for (; cnt>0; --cnt) {
+      const def = new CellDef();
+      cellDefs.push(def);
+      def._type = stream.readUInt8();
+      def._id = stream.readUInt32();
+      def._x = stream.readFloat();
+      def._y = stream.readFloat();
+      def._mass = stream.readUInt32();
+      def._radius = stream.readUInt16();
+      def._color = stream.readUInt8();
+      if (def.isAvatar()) {
+        def._playerId = stream.readUInt32();
+        def._name = players[def._playerId]._name;
+        // def._protection = stream.readUInt32();
+      }
+      if (def.isMoving()) {
+        def._vx = stream.readFloat();
+        def._vy = stream.readFloat();
+      }
+      def._color = this._config.colors[def._color];
+    }
+    const removed = stream.read(['arr16', 'uint32']);
+    const selfAvatarsInfo = stream.read(['arr8', {'id': 'uint32', 'maxSpeed': 'float', 'protection': 'uint32'}]);
+    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
+    const arrowPlayerId = stream.readUInt32();
+    if (arrowPlayerId !== this._room._arrowPlayerId) {
+      if (arrowPlayerId) {
+        this._room._arrowPlayerX = stream.readFloat();
+        this._room._arrowPlayerY = stream.readFloat();
+        // TODO: fix
+        // if (this._room._directionPanel._player !== players[arrowPlayerId]) {
+        //   this._room._directionPanel._label.text = players[arrowPlayerId]._name;
+        //   this._room._directionPanel._player = players[arrowPlayerId];
+        //   this._room._directionPanel.update();
+        // }
+        // this._room._directionPanel.visible = true; // TODO: fix
+      } else {
+        // this._room._directionPanel.visible = false; // TODO: fix
+      }
+    }
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketLeaderboard(stream) {
-    let items = [];
+    const items = [];
     let count = stream.readUInt8();
     for (; count>0; --count) {
-      let id = stream.readUInt32();
-      let mass = stream.readUInt32();
+      const id = stream.readUInt32();
+      const mass = stream.readUInt32();
       items.push({'id': id, 'name': this._players[id].name, 'mass': mass});
     }
     // TODO: avoid using protected members
     this._room._leaderboard.items = items;
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayer(stream) {
     const playerId = stream.readUInt32();
     const name = stream.readString();
@@ -362,42 +381,63 @@ export default class Game {
     }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayerRemove(stream) {
     const playerId = stream.readUInt32();
     delete this._players[playerId];
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayerJoin(stream) {
     const playerId = stream.readUInt32();
     this._players[playerId].status |= 1;
-    room._directionPanel.update(); // TODO: fix
+    // this._room._directionPanel.update(); // TODO: fix
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayerLeave(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status &= 0xFE;
-    room._directionPanel.update(); // TODO: fix
+    this._players[playerId].status &= 0xFE; // TODO: avoid magic numbers
+    // this._room._directionPanel.update(); // TODO: fix
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayerBorn(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status |= 2;
-    room._directionPanel.update(); // TODO: fix
+    this._players[playerId].status |= 2; // TODO: avoid magic numbers
+    // this._room._directionPanel.update(); // TODO: fix
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlayerDead(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId]._status &= 0xFD;
-    room._directionPanel.update(); // TODO: fix
+    this._players[playerId]._status &= 0xFD; // TODO: avoid magic numbers
+    // this._room._directionPanel.update(); // TODO: fix
   }
 
-  // TODO: check
-  onPacketFinish() {
-    if (service.onFinish) {
-      service.onFinish();
-    }
+  /**
+   * @param {BinaryStream} stream
+   */
+  onPacketFinish(stream) {
+    // TODO: implement
+    // if (service.onFinish) {
+    //   service.onFinish();
+    // }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketPlay(stream) {
     const playerId = stream.readUInt32();
     const x = stream.readUInt16();
@@ -411,18 +451,25 @@ export default class Game {
     // }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketSpectate(stream) {
-    let playerId = stream.readUInt32();
-    let x = stream.readUInt16();
-    let y = stream.readUInt16();
-    let maxMass = stream.readUInt32();
-    room.play(playerId, x, y, maxMass);
+    const playerId = stream.readUInt32();
+    const x = stream.readUInt16();
+    const y = stream.readUInt16();
+    const maxMass = stream.readUInt32();
+    this._room.play(playerId, x, y, maxMass);
     this._isSpectateMode = true;
-    if (service.onSpectate) {
-      service.onSpectate();
-    }
+    // TODO: implement
+    // if (service.onSpectate) {
+    //   service.onSpectate();
+    // }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
   onPacketChatMessage(stream) {
     const authorId = stream.readUInt32();
     const text = stream.readString();

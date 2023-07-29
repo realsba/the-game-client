@@ -3,6 +3,7 @@ import PlayerInfoPanel from './PlayerInfoPanel';
 import Leaderboard from './Leaderboard';
 import InfoPanel from './InfoPanel';
 import Player from './Player';
+import BinaryStream from './BinaryStream';
 
 export default class Room extends PIXI.Container {
   _visibleWidth = 1320;
@@ -277,25 +278,25 @@ export default class Room extends PIXI.Container {
     }, this);
   }
 
-// Room.prototype.play = function (playerId, x, y, maxMass) {
-//   this.init();
-//   this.leaderboard.playerId = playerId;
-//   this._playerInfoPanel.maxMass = maxMass;
-//   this._player._id = playerId;
-//   this._player._x = x;
-//   this._player._y = y;
-//   this.leaderboard.onMouseDown = (mouse) => {
-//     let event = mouse.data.originalEvent;
-//     if (event.ctrlKey) {
-//       let binary = new jBinary(5);
-//       binary.writeUInt8(10);
-//       binary.writeUInt32(mouse.target.playerId);
-//       this.socket.send(binary.view.buffer);
-//     }
-//     mouse.stopPropagation();
-//   };
-// };
-//
+  play(playerId, x, y, maxMass) {
+    this.init();
+    this._leaderboard.playerId = playerId;
+    this._playerInfoPanel.maxMass = maxMass;
+    this._player._id = playerId;
+    this._player._x = x;
+    this._player._y = y;
+    this._leaderboard.onMouseDown = (mouse) => {
+      const event = mouse.data.originalEvent;
+      if (event.ctrlKey) {
+        const stream = new BinaryStream(5);
+        stream.writeUInt8(10);
+        stream.writeUInt32(mouse.target.playerId);
+        this.socket.send(stream.buffer);
+      }
+      mouse.stopPropagation();
+    };
+  };
+
   setCellAsSimulated(cell) {
     if (this._simulatedCells.indexOf(cell) === -1) {
       this._simulatedCells.push(cell);
