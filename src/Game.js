@@ -3,6 +3,7 @@ import {PlayerInfo} from './Player';
 import Room from './Room';
 
 export default class Game {
+  _room = null;
   _socket = null;
   _ready = false;
   _players = {};
@@ -15,28 +16,29 @@ export default class Game {
   _bytesOut = 0;
   _stopped = false;
   _isSpectateMode = false;
+  _lastPingTime;
 
-  // dispatcher = {
-  //   1: onPacketPong,
-  //   2: onPacketGreeting,
-  //   3: onPacketRoom,
-  //   4: onPacketFrame,
-  //   5: onPacketLeaderboard,
-  //   6: onPacketPlayer,
-  //   7: onPacketPlayerRemove,
-  //   8: onPacketPlayerJoin,
-  //   9: onPacketPlayerLeave,
-  //   10: onPacketPlayerBorn,
-  //   11: onPacketPlayerDead,
-  //   12: onPacketPlay,
-  //   13: onPacketSpectate,
-  //   14: onPacketFinish,
-  //   15: onPacketChatMessage
-  // };
+  _dispatcher = {
+    1: (stream) => this.onPacketPong(stream),
+    2: (stream) => this.onPacketGreeting(stream),
+    3: (stream) => this.onPacketRoom(stream),
+    4: (stream) => this.onPacketFrame(stream),
+    5: (stream) => this.onPacketLeaderboard(stream),
+    6: (stream) => this.onPacketPlayer(stream),
+    7: (stream) => this.onPacketPlayerRemove(stream),
+    8: (stream) => this.onPacketPlayerJoin(stream),
+    9: (stream) => this.onPacketPlayerLeave(stream),
+    10: (stream) => this.onPacketPlayerBorn(stream),
+    11: (stream) => this.onPacketPlayerDead(stream),
+    12: (stream) => this.onPacketPlay(stream),
+    13: (stream) => this.onPacketSpectate(stream),
+    14: (stream) => this.onPacketFinish(stream),
+    15: (stream) => this.onPacketChatMessage(stream)
+  };
 
-  constructor(config) {
-    this._comfig = config;
-    //this._room = new Room(config);
+  constructor(view, config) {
+    this._config = config;
+    this._room = new Room(view, config);
     //let stopSprite = new PIXI.Sprite.fromImage('img/stop.png');
     //stopSprite.visible = false;
   }
@@ -167,14 +169,13 @@ export default class Game {
     this._socket = new WebSocket(url);
     this._socket.binaryType = 'arraybuffer';
     this._socket.onopen = () => {
-      // TODO: fix
-      function checkReadyState () {
+      const checkReadyState = () => {
         if (this._socket.readyState === 0) {
           setTimeout(checkReadyState, 50);
           return;
         }
-        sendGreeting($localStorage['sid']);
-        ping();
+        this.sendGreeting(localStorage.getItem('sid'));
+        this.ping();
       }
       checkReadyState();
     };
@@ -189,13 +190,13 @@ export default class Game {
     };
     this._socket.onmessage = (event) => {
       const stream = new BinaryStream(event.data);
-      while (binary.view.byteLength > binary.tell()) {
-        let type = binary.readUInt8();
-        if (dispatcher.hasOwnProperty(type)) {
-          dispatcher[type](binary);
+      this._bytesIn += stream.byteLength;
+      while (stream.hasNext()) {
+        const type = stream.readUInt8();
+        if (this._dispatcher.hasOwnProperty(type)) {
+          this._dispatcher[type](stream);
         }
-        ++packetsIn;
-        bytesIn += binary.view.byteLength;
+        ++this._packetsIn;
       }
     }
   }
@@ -221,28 +222,26 @@ export default class Game {
   //   }
   // }
 
-  // let lastPingTime;
-  // function ping() {
-  //   if (this._socket) {
-  //     let binary = new BinaryStream(1);
-  //     binary.writeUInt8(1);
-  //     send(binary.view.buffer);
-  //     lastPingTime = Date.now();
-  //   }
-  // }
+  ping() {
+    if (this._socket) {
+      let stream = new BinaryStream();
+      stream.writeUInt8(1);
+      this.send(stream.buffer);
+      this._lastPingTime = Date.now();
+    }
+  }
 
-  // TODO: fix
   onPacketPong() {
     const now = Date.now();
-    infoPanel.ping = (now - lastPingTime) >> 0;
-    lastPingTime = now;
-    setTimeout(ping, 2500);
+    this._room.infoPanel.ping = (now - this._lastPingTime) >> 0;
+    this._lastPingTime = now;
+    setTimeout(() => this.ping(), 2500);
   }
 
   onPacketGreeting(stream) {
     const sid = stream.readString();
     if (sid) {
-      $localStorage['sid'] = sid; // TODO: fix
+      localStorage.setItem('sid', sid);
     }
   }
 

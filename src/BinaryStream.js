@@ -15,8 +15,16 @@ export default class BinaryStream {
     return this.#dataview.buffer.slice(0, this.#offset);
   }
 
+  get byteLength() {
+    return this.#dataview.byteLength;
+  }
+
   seek(offset) {
     this.#offset = offset;
+  }
+
+  hasNext() {
+    return this.#offset < this.#dataview.byteLength;
   }
 
   readUInt8() {

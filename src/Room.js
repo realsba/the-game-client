@@ -57,6 +57,10 @@ export default class Room extends PIXI.Container {
     view.addChild(this);
   }
 
+  get infoPanel() {
+    return this._infoPanel;
+  }
+
 // Room.prototype.init = function () {
 //   Room.prototype.frame = this.initFrame;
 //   Room.prototype.$update = this.fakeUpdate;
