@@ -76,7 +76,7 @@ export default class Game {
   //     bytesOut = 0;
   //     infoPanelLastUpdate = now;
   //   }
-  //   if (ready) {
+  //   if (this._ready) {
   //     if (mousePositionChanged) {
   //       let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * screenWidth) / room._scale;
   //       let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * screenHeight) / room._scale;
@@ -116,7 +116,7 @@ export default class Game {
   }
 
   actionEject(point) {
-    if (ready) { // TODO: fix
+    if (this._ready) { // TODO: fix
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
       stream.writeUInt16(room._player._x + (point.x - 0.5 * screenWidth) / room._scale);  // TODO: fix
@@ -126,7 +126,7 @@ export default class Game {
   }
 
   actionSplit(point) {
-    if (ready) { // TODO: fix
+    if (this._ready) { // TODO: fix
       const stream = new BinaryStream(5);
       stream.writeUInt8(7);
       stream.writeUInt16(room._player._x + (point.x - 0.5 * screenWidth) / room._scale);  // TODO: fix
@@ -136,7 +136,7 @@ export default class Game {
   }
 
   chatMessage(text) {
-    if (ready) {
+    if (this._ready) {
       const stream = new BinaryStream(1024);
       stream.writeUInt8(2);
       stream.writeString(text);
@@ -246,44 +246,44 @@ export default class Game {
   }
 
   onPacketRoom(stream) {
-    let width = stream.readUInt16();
-    let height = stream.readUInt16();
-    let viewportBase = stream.readUInt16();
-    let viewportBuffer = stream.readFloat();
-    let aspectRatio = stream.readFloat();
-    let resistanceRatio = stream.readFloat();
-    let elasticityRatio = stream.readFloat();
-    let foodResistanceRatio = stream.readFloat();
+    const width = stream.readUInt16();
+    const height = stream.readUInt16();
+    const viewportBase = stream.readUInt16();
+    const viewportBuffer = stream.readFloat();
+    const aspectRatio = stream.readFloat();
+    const resistanceRatio = stream.readFloat();
+    const elasticityRatio = stream.readFloat();
+    const foodResistanceRatio = stream.readFloat();
     let count = stream.readUInt8();
-    for (; count>0; --count) {
-      let id = stream.readUInt32();
-      let name = stream.read('bstr');
-      let status = stream.readUInt8();
+    for (; count > 0; --count) {
+      const id = stream.readUInt32();
+      const name = stream.readString();
+      const status = stream.readUInt8();
       this._players[id] = new PlayerInfo(id, name, status);
     }
-    $rootScope['chatHistory'] = [];
+    // $rootScope['chatHistory'] = []; // TODO: implement
     count = stream.readUInt8();
-    for (; count>0; --count) {
-      let authorId = stream.readUInt32();
-      let author = stream.read('bstr');
-      let text = stream.read('bstr');
-      $rootScope['chatHistory'].push({'authorId': authorId, 'author': author, 'text': text});
-      $rootScope.$apply();
+    for (; count > 0; --count) {
+      const authorId = stream.readUInt32();
+      const author = stream.readString();
+      const text = stream.readString();
+      // $rootScope['chatHistory'].push({'authorId': authorId, 'author': author, 'text': text}); // TODO: implement
+      // $rootScope.$apply(); // TODO: implement
     }
-    room.init();
-    room._socket = socket;
-    room._width = width;
-    room._height = height;
-    room._visibleHeight = viewportBase;
-    room._visibleWidth = viewportBase * aspectRatio;
-    room._viewportBuffer = viewportBuffer;
-    room._resistanceRatio = resistanceRatio;
-    room._elasticityRatio = elasticityRatio; // TODO: not used
-    room._foodResistanceRatio = foodResistanceRatio;
-    room._player._x = 0.5 * width;
-    room._player._y = 0.5 * height;
-    room.setScreenSize(screenWidth, screenHeight);
-    ready = true;
+    this._room.init();
+    this._room._socket = socket;
+    this._room._width = width;
+    this._room._height = height;
+    this._room._visibleHeight = viewportBase;
+    this._room._visibleWidth = viewportBase * aspectRatio;
+    this._room._viewportBuffer = viewportBuffer;
+    this._room._resistanceRatio = resistanceRatio;
+    this._room._elasticityRatio = elasticityRatio; // TODO: not used
+    this._room._foodResistanceRatio = foodResistanceRatio;
+    this._room._player._x = 0.5 * width;
+    this._room._player._y = 0.5 * height;
+    this._room.setScreenSize(screenWidth, screenHeight); // TODO: fix
+    this._ready = true;
   }
 
   // /**
