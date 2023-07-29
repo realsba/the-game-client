@@ -61,7 +61,7 @@ class PositionSmoother {
   }
 
   init(x, y, time) {
-    let step = new Vec2D((x - this._current._x) / time, (y - this._current._y) / time);
+    const step = new Vec2D((x - this._current._x) / time, (y - this._current._y) / time);
     if (step.squareLength() < 5 * 5) {
       return;
     }
@@ -89,45 +89,56 @@ class PositionSmoother {
 }
 
 export class CellDef {
-  _type = null;
-  _id = null;
-  _x = null;
-  _y = null;
-  _mass = null;
-  _radius = null;
-  _color = null;
-  _vx = null;
-  _vy = null;
-  _playerId = null;
-  _name = null;
+  static TYPE_AVATAR = 1;
+  static TYPE_FOOD = 2;
+  static TYPE_MASS = 3;
+  static TYPE_VIRUS = 4;
+  static TYPE_PHAGE = 5;
+  static TYPE_MOTHER = 6;
+  static FLAG_NEW = 64;
+  static FLAG_MOVING = 128;
+
+  static MASK_TYPE = 15;
+
+  type = null;
+  id = null;
+  x = null;
+  y = null;
+  mass = null;
+  radius = null;
+  color = null;
+  vx = null;
+  vy = null;
+  playerId = null;
+  name = null;
 
   isAvatar() {
-    return (this._type & 15) === 1;
+    return (this.type & CellDef.MASK_TYPE) === CellDef.TYPE_AVATAR;
   };
 
   isFood() {
-    return (this._type & 15) === 2;
+    return (this.type & CellDef.MASK_TYPE) === CellDef.TYPE_FOOD;
   };
 
   isMass() {
-    return (this._type & 15) === 3;
+    return (this.type & CellDef.MASK_TYPE) === CellDef.TYPE_MASS;
   };
 
   isVirus() {
-    let type = this._type & 15;
-    return type === 4 || type === 5;
+    const type = this.type & CellDef.MASK_TYPE;
+    return type === CellDef.TYPE_VIRUS || type === CellDef.TYPE_PHAGE;
   };
 
   isMother() {
-    return (this._type & 15) === 6;
+    return (this.type & CellDef.MASK_TYPE) === CellDef.TYPE_MOTHER;
   };
 
   isNew() {
-    return (this._type & 64) !== 0;
+    return (this.type & CellDef.FLAG_NEW) !== 0;
   };
 
   isMoving() {
-    return (this._type & 128) !== 0;
+    return (this.type & CellDef.FLAG_MOVING) !== 0;
   };
 }
 
@@ -142,19 +153,19 @@ export class Cell extends PIXI.Graphics {
     room.addChild(this);
 
     this._room = room;
-    this._id = def._id;
-    this._position = new Vec2D(def._x, def._y);
-    this._velocity = new Vec2D(def._vx, def._vy);
-    this._color = def._color;
-    this._mass = def._mass;
-    this._radius = def._radius;
-    this._playerId = def._playerId;
+    this._id = def.id;
+    this._position = new Vec2D(def.x, def.y);
+    this._velocity = new Vec2D(def.vx, def.vy);
+    this._color = def.color;
+    this._mass = def.mass;
+    this._radius = def.radius;
+    this._playerId = def.playerId;
     this._viewRadius = this._radius;
     this._scale = scale;
 
     this._positionSmoother = new PositionSmoother(this._position);
 
-    let position = this._position.scalarProduct(this._scale);
+    const position = this._position.scalarProduct(this._scale);
     this.position.x = position._x;
     this.position.y = position._y;
 
@@ -165,7 +176,7 @@ export class Cell extends PIXI.Graphics {
 
     this.interactive = true;
     this.on('mousedown', function (mouse) {
-      let event = mouse.data.originalEvent;
+      const event = mouse.data.originalEvent;
       if (event.ctrlKey && event.altKey) {
         console.log(mouse.target.object.toString());
       }
@@ -179,11 +190,11 @@ export class Cell extends PIXI.Graphics {
   };
 
   modify(def) {
-    this._velocity._x = def._vx;
-    this._velocity._y = def._vy;
-    this.radius = def._radius;
-    this.mass = def._mass;
-    this._positionSmoother.init(def._x, def._y, 0.25);
+    this._velocity._x = def.vx;
+    this._velocity._y = def.vy;
+    this.radius = def.radius;
+    this.mass = def.mass;
+    this._positionSmoother.init(def.x, def.y, 0.25);
   };
 
   draw() {
@@ -222,9 +233,9 @@ export class Cell extends PIXI.Graphics {
   };
 
   simulateInternal(dt, resistanceRatio) {
-    let scalar = this._radius * resistanceRatio;
+    const scalar = this._radius * resistanceRatio;
     this._force.assignmentDifference(this._velocity.direction().scalarProduct(scalar));
-    let acceleration = this._force.scalarDivision(this._mass);
+    const acceleration = this._force.scalarDivision(this._mass);
     this._velocity.assignmentSum(acceleration.scalarProduct(dt));
     this._position.assignmentSum(this._velocity.scalarProduct(dt));
     this._positionSmoother.smooth(dt);
@@ -290,7 +301,7 @@ export class Avatar extends Cell {
   constructor(room, def, scale) {
     super(room, def, scale);
 
-    this._name = def._name;
+    this._name = def.name;
     this._viewMass = this._mass;
     this._maxSpeed = 0;
 
@@ -304,7 +315,7 @@ export class Avatar extends Cell {
         'fontSize': fontSize + 'pt',
         'fontWeight': 'bold',
         'fill': 0xFFFFFF,
-        'stroke': blur(def._color, 80),
+        'stroke': blur(def.color, 80),
         'strokeThickness': 2,
         'align': 'center'
       }
@@ -317,7 +328,7 @@ export class Avatar extends Cell {
         'fontSize': fontSize + 'pt',
         'fontWeight': 'bold',
         'fill': 0xCCCCCC,
-        'stroke': blur(def._color, 80),
+        'stroke': blur(def.color, 80),
         'strokeThickness': 2,
         'align': 'center'
       }
@@ -327,11 +338,11 @@ export class Avatar extends Cell {
     this.updateTextPosition();
 
     this.on('mousedown', function (mouse) {
-      let event = mouse.data.originalEvent;
+      const event = mouse.data.originalEvent;
       if (event.ctrlKey && !event.altKey) {
-        let avatar = mouse.target.object;
+        const avatar = mouse.target.object;
         // TODO: implement
-        //let binary = new jBinary(5);
+        //const binary = new jBinary(5);
         //binary.writeUInt8(10);
         //binary.writeUInt32(avatar._playerId);
         //avatar._room._socket.send(binary.view.buffer);
@@ -342,10 +353,10 @@ export class Avatar extends Cell {
 
   setScale(scale) {
     super.setScale(scale);
-    let textStyle = this._text.style;
+    const textStyle = this._text.style;
     textStyle['font'] = 'bold ' + (this._textSize * scale) + 'px Arial';
     this._text['style'] = textStyle;
-    let textMassStyle = this._textMass.style;
+    const textMassStyle = this._textMass.style;
     textMassStyle['font'] = 'bold ' + (this._textMassSize * scale) + 'px Arial';
     this._textMass['style'] = textMassStyle;
     this.updateTextPosition();
@@ -375,7 +386,7 @@ export class Avatar extends Cell {
 
   animate(dt) {
     super.animate(dt);
-    let res = this._massAnimator.animate(dt);
+    const res = this._massAnimator.animate(dt);
     if (res !== false) {
       this._viewMass = res;
       this._textMass.text = ~~res;
