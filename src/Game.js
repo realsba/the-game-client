@@ -17,6 +17,8 @@ export default class Game {
   _stopped = false;
   _isSpectateMode = false;
   _lastPingTime;
+  _screenWidth;
+  _screenHeight;
 
   _dispatcher = {
     1: (stream) => this.onPacketPong(stream),
@@ -43,14 +45,15 @@ export default class Game {
     //stopSprite.visible = false;
   }
 
-  // resize(width, height) {
-  //   screenWidth = width;
-  //   screenHeight = height;
-  //   room.setScreenSize(width, height);
-  //   infoPanel.onResize();
-  //   stopSprite.x = screenWidth - 128; // TODO: change -128 to -stopSprite.width
-  //   stopSprite.y = infoPanel.y + infoPanel.height;
-  // }
+  resize(width, height) {
+    this._screenWidth = width;
+    this._screenHeight = height;
+    this._room.setScreenSize(width, height);
+    // TODO: implement
+    // infoPanel.onResize();
+    // stopSprite.x = this._screenWidth - 128; // TODO: change -128 to -stopSprite.width
+    // stopSprite.y = infoPanel.y + infoPanel.height;
+  }
 
   send(buffer) {
     this._socket.send(buffer);
@@ -78,8 +81,8 @@ export default class Game {
   //   }
   //   if (this._ready) {
   //     if (mousePositionChanged) {
-  //       let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * screenWidth) / room._scale;
-  //       let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * screenHeight) / room._scale;
+  //       let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * this._screenWidth) / room._scale;
+  //       let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * this._screenHeight) / room._scale;
   //       let binary = new jBinary(5);
   //       binary.writeUInt8(5);
   //       binary.writeUInt16(x);
@@ -119,8 +122,8 @@ export default class Game {
     if (this._ready) { // TODO: fix
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
-      stream.writeUInt16(room._player._x + (point.x - 0.5 * screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player._y + (point.y - 0.5 * screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
+      stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
       this.send(stream.buffer);
     }
   }
@@ -129,8 +132,8 @@ export default class Game {
     if (this._ready) { // TODO: fix
       const stream = new BinaryStream(5);
       stream.writeUInt8(7);
-      stream.writeUInt16(room._player._x + (point.x - 0.5 * screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player._y + (point.y - 0.5 * screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
+      stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
       this.send(stream.buffer);
     }
   }
@@ -271,7 +274,8 @@ export default class Game {
       // $rootScope.$apply(); // TODO: implement
     }
     this._room.init();
-    this._room._socket = socket;
+    // TODO: avoid using protected members
+    this._room._socket = this._socket;
     this._room._width = width;
     this._room._height = height;
     this._room._visibleHeight = viewportBase;
@@ -282,7 +286,7 @@ export default class Game {
     this._room._foodResistanceRatio = foodResistanceRatio;
     this._room._player._x = 0.5 * width;
     this._room._player._y = 0.5 * height;
-    this._room.setScreenSize(screenWidth, screenHeight); // TODO: fix
+    this._room.setScreenSize(this._screenWidth, this._screenHeight); // TODO: fix
     this._ready = true;
   }
 

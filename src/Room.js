@@ -13,6 +13,8 @@ export default class Room extends PIXI.Container {
   tick = 0;
   arrowPlayerX = 0;
   arrowPlayerY = 0;
+  _simulatedCells;
+  _animatedCells;
 
   _cells = new Map();
   _player = new Player();
@@ -61,17 +63,17 @@ export default class Room extends PIXI.Container {
     return this._infoPanel;
   }
 
-// Room.prototype.init = function () {
-//   Room.prototype.frame = this.initFrame;
-//   Room.prototype.$update = this.fakeUpdate;
-//   this.lastUpdate = Date.now() + 1000;
-//   this._cells.clear();
-//   this.simulatedCells = [];
-//   this.animatedCells = [];
-//   this._player.clearAvatars();
-//   this._foodLayer.removeChildren();
-//   this._cellsLayer.removeChildren();
-// };
+  init() {
+   Room.prototype.frame = this.initFrame;
+   Room.prototype.$update = this.fakeUpdate;
+    this.lastUpdate = Date.now() + 1000;
+    this._cells.clear();
+    this._simulatedCells = [];
+    this._animatedCells = [];
+    this._player.clearAvatars();
+    this._foodLayer.removeChildren();
+    this._cellsLayer.removeChildren();
+  }
 
   draw() {
     this.drawBorder();
@@ -116,7 +118,7 @@ export default class Room extends PIXI.Container {
       this._debugLayer.drawCircle(0.5 * this._screenWidth, 0.5 * this._screenHeight, 10 * this._scale);
       this._debugLayer.endFill();
     }
-  };
+  }
 
   drawBorder() {
     let height = this.height * this._scale; // TODO: what is this.height?
@@ -128,7 +130,7 @@ export default class Room extends PIXI.Container {
     this._borderLayer.lineTo(width, height);
     this._borderLayer.lineTo(width, 0);
     this._borderLayer.lineTo(0, 0);
-  };
+  }
 
   drawGrid() {
     this._gridLayer.clear();
@@ -142,7 +144,7 @@ export default class Room extends PIXI.Container {
       this._gridLayer.moveTo(-gridSize, i);
       this._gridLayer.lineTo(this._screenWidth + gridSize, i);
     }
-  };
+  }
 
 // Room.prototype._initFrame = function(now, tick, scale, cellDefs, removed) {
 //   Room.prototype.frame = this.frame;
@@ -199,16 +201,16 @@ export default class Room extends PIXI.Container {
     //   avatar._force.assignmentSum(force);
     // }, this);
     //
-    // this.simulatedCells.forEach(function (cell) {
+    // this._simulatedCells.forEach(function (cell) {
     //   cell.simulate(dt);
     // });
-    // this.simulatedCells = this.simulatedCells.filter(function (cell) {
+    // this._simulatedCells = this._simulatedCells.filter(function (cell) {
     //   return cell.isSimulated();
     // });
-    // this.animatedCells.forEach(function (cell) {
+    // this._animatedCells.forEach(function (cell) {
     //   cell.animate(dt);
     // });
-    // this.animatedCells = this.animatedCells.filter(function (cell) {
+    // this._animatedCells = this._animatedCells.filter(function (cell) {
     //   return cell.isAnimated();
     // });
 
@@ -233,7 +235,7 @@ export default class Room extends PIXI.Container {
     let gridSize = this._config.gridSize * this._scale;
     this._gridLayer.position.x = x % gridSize;
     this._gridLayer.position.y = y % gridSize;
-  };
+  }
 
   placePlayerInfoPanel() {
     this._playerInfoPanel.y = this._screenHeight - this._playerInfoPanel.height - 8;
@@ -249,7 +251,7 @@ export default class Room extends PIXI.Container {
     this.placePlayerInfoPanel();
     this.placeInfoPanel();
     this.onChangeScale();
-  };
+  }
 
   setScaleRatio(ratio) {
     this._scaleRatio = ratio;
@@ -258,14 +260,14 @@ export default class Room extends PIXI.Container {
       this._textRightBottom.text = '';
     }
     this.onChangeScale();
-  };
+  }
 
   setServerScale(scale) {
     if (Math.abs(this._serverScale - scale) > 0.01) {
       this._serverScale = scale;
       this.onChangeScale();
     }
-  };
+  }
 
   onChangeScale() {
     this._scale = this._scaleRatio * this._screenHeight / (this._visibleHeight * this._serverScale);
@@ -273,7 +275,7 @@ export default class Room extends PIXI.Container {
     this._cells.forEach(function(cell) {
       cell.setScale(this.scale);
     }, this);
-  };
+  }
 
 // Room.prototype.play = function (playerId, x, y, maxMass) {
 //   this.init();
@@ -295,16 +297,16 @@ export default class Room extends PIXI.Container {
 // };
 //
   setCellAsSimulated(cell) {
-    if (this.simulatedCells.indexOf(cell) === -1) {
-      this.simulatedCells.push(cell);
+    if (this._simulatedCells.indexOf(cell) === -1) {
+      this._simulatedCells.push(cell);
     }
-  };
+  }
 
   setCellAsAnimated(cell) {
-    if (this.animatedCells.indexOf(cell) === -1) {
-      this.animatedCells.push(cell);
+    if (this._animatedCells.indexOf(cell) === -1) {
+      this._animatedCells.push(cell);
     }
-  };
+  }
 
   modifyCell(def) {
     /** @type {Cell} cell */
@@ -354,18 +356,18 @@ export default class Room extends PIXI.Container {
         return res === 0 ? a.index - b.index : res;
       });
     }
-  };
+  }
 
   removeCell(cellId) {
     let cell = this._cells.get(cellId);
     if (cell) {
-      let index = this.simulatedCells.indexOf(cell);
+      let index = this._simulatedCells.indexOf(cell);
       if (index !== -1) {
-        this.simulatedCells.splice(index, 1);
+        this._simulatedCells.splice(index, 1);
       }
-      index = this.animatedCells.indexOf(cell);
+      index = this._animatedCells.indexOf(cell);
       if (index !== -1) {
-        this.animatedCells.splice(index, 1);
+        this._animatedCells.splice(index, 1);
       }
       if (cell.playerId === this._player.id) {
         this._player.removeAvatar(cell);
@@ -373,5 +375,5 @@ export default class Room extends PIXI.Container {
       cell.graphics.parent.removeChild(cell.graphics); // TODO: encapsulate logic
       this._cells.delete(cellId);
     }
-  };
+  }
 }
