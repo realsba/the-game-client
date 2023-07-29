@@ -1,12 +1,14 @@
 {
   "name": "the-game-client",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,8 @@
     "pixi.js": "^7.2.4"
   },
   "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
     "vite": "^4.3.9"
   }
 }
