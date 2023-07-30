@@ -7,6 +7,7 @@ import BinaryStream from './BinaryStream.js';
 import { Cell, Avatar, Food, Mass, Virus, Mother } from './Cell.js';
 
 export default class Room extends PIXI.Container {
+  socket; // TODO: remove related code
   _visibleWidth = 1320;
   _visibleHeight = 743;
   _serverScale = 1;
@@ -94,7 +95,7 @@ export default class Room extends PIXI.Container {
       this._debugLayer.lineTo(left, bottom);
       this._debugLayer.lineTo(left, top);
 
-      let k = 1 + 2 * this.viewportBuffer;
+      let k = 1 + 2 * this.viewportBuffer; // TODO: find alternative
       width *= k;
       height *= k;
       left = 0.5 * (this._screenWidth - width);
@@ -122,8 +123,8 @@ export default class Room extends PIXI.Container {
   }
 
   drawBorder() {
-    let height = this.height * this._scale; // TODO: what is this.height?
-    let width = this.width * this._scale;
+    let height = this.height * this._scale; // TODO: should create and use new members
+    let width = this.width * this._scale;   // originalHeight and originalWidth
     this._borderLayer.clear();
     this._borderLayer.lineStyle(this._config.borderLineStyle);
     this._borderLayer.moveTo(0, 0);

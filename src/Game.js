@@ -4,13 +4,21 @@ import Room from './Room.js';
 import { CellDef } from "./Cell.js";
 
 export default class Game {
+  _screenWidth;
+  _screenHeight;
+  _scaleModifier = 100;
+  /**
+   * @type {Room}
+   */
   _room = null;
+  /**
+   * @type {WebSocket}
+   */
   _socket = null;
   _ready = false;
   _players = {};
   _mousePosition = {};
   _mousePositionChanged = false;
-  _frames = 0;
   _packetsIn = 0;
   _packetsOut = 0;
   _bytesIn = 0;
@@ -18,8 +26,6 @@ export default class Game {
   _stopped = false;
   _isSpectateMode = false;
   _lastPingTime;
-  _screenWidth;
-  _screenHeight;
   _infoPanelLastUpdate = Date.now();
 
   _dispatcher = {
@@ -43,6 +49,7 @@ export default class Game {
   constructor(view, config) {
     this._config = config;
     this._room = new Room(view, config);
+    // TODO: implement
     //let stopSprite = new PIXI.Sprite.fromImage('img/stop.png');
     //stopSprite.visible = false;
   }
@@ -57,6 +64,9 @@ export default class Game {
     // stopSprite.y = infoPanel.y + infoPanel.height;
   }
 
+  /**
+   * @param {ArrayBuffer} buffer
+   */
   send(buffer) {
     this._socket.send(buffer);
     ++this._packetsOut;
@@ -65,23 +75,21 @@ export default class Game {
 
   update() {
     // TODO: use external time counter
-    ++this._frames;
-    let now = Date.now();
-    let dt = now - this._infoPanelLastUpdate;
+    const now = Date.now();
+    const dt = now - this._infoPanelLastUpdate;
     if (dt > 250) {
       let k = 1000 / dt;
-      this._room._infoPanel.fps = frames * k;
-      this._room._infoPanel.packetsIn = this._packetsIn * k;
-      this._room._infoPanel.packetsOut = this._packetsOut * k;
-      this._room._infoPanel.bytesIn = this._bytesIn * k;
-      this._room._infoPanel.bytesOut = this._bytesOut * k;
-      this._frames = 0;
+      this._room.infoPanel.packetsIn = this._packetsIn * k;
+      this._room.infoPanel.packetsOut = this._packetsOut * k;
+      this._room.infoPanel.bytesIn = this._bytesIn * k;
+      this._room.infoPanel.bytesOut = this._bytesOut * k;
       this._packetsIn = 0;
       this._packetsOut = 0;
       this._bytesIn = 0;
       this._bytesOut = 0;
       this._infoPanelLastUpdate = now;
     }
+    // TODO: implement
     // if (this._ready) {
     //   if (mousePositionChanged) {
     //     let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * this._screenWidth) / room._scale;
@@ -99,13 +107,20 @@ export default class Game {
     // }
   }
 
+  /**
+   * @param {string} sid
+   */
   sendGreeting(sid) {
-    const stream = new BinaryStream(new ArrayBuffer(35));
+    const stream = new BinaryStream(35);
     stream.writeUInt8(3);
     stream.writeString(sid ? sid : '');
     this.send(stream.buffer);
   }
 
+  /**
+   * @param {string} name
+   * @param {number} color
+   */
   actionPlay(name, color) {
     const stream = new BinaryStream(64);
     stream.writeUInt8(4);
@@ -114,6 +129,9 @@ export default class Game {
     this.send(stream.buffer);
   }
 
+  /**
+   * @param {number} playerId
+   */
   actionSpectate(playerId) {
     const stream = new BinaryStream(5);
     stream.writeUInt8(8);
@@ -122,7 +140,7 @@ export default class Game {
   }
 
   actionEject(point) {
-    if (this._ready) { // TODO: fix
+    if (this._ready) {
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
       stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
@@ -141,6 +159,9 @@ export default class Game {
     }
   }
 
+  /**
+   * @param {string} text
+   */
   chatMessage(text) {
     if (this._ready) {
       const stream = new BinaryStream(1024);
@@ -171,6 +192,9 @@ export default class Game {
     }
   }
 
+  /**
+   * @param {string} url
+   */
   startConnection(url) {
     this._socket = new WebSocket(url);
     this._socket.binaryType = 'arraybuffer';
@@ -207,26 +231,26 @@ export default class Game {
     }
   }
 
-  // function incScale() {
-  //   if (scaleModifier < 200) {
-  //     scaleModifier += 10;
-  //     room.setScaleRatio(0.01 * scaleModifier);
-  //   }
-  // }
+  incScale() {
+    if (this._scaleModifier < 200) {
+      this._scaleModifier += 10;
+      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    }
+  }
 
-  // function decScale() {
-  //   if (scaleModifier > 10) {
-  //     scaleModifier -= 10;
-  //     room.setScaleRatio(0.01 * scaleModifier);
-  //   }
-  // }
+  decScale() {
+    if (this._scaleModifier > 10) {
+      this._scaleModifier -= 10;
+      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    }
+  }
 
-  // function resetScale() {
-  //   if (scaleModifier != 100) {
-  //     scaleModifier = 100;
-  //     room.setScaleRatio(0.01 * scaleModifier);
-  //   }
-  // }
+  resetScale() {
+    if (this._scaleModifier !== 100) {
+      this._scaleModifier = 100;
+      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    }
+  }
 
   ping() {
     if (this._socket) {
@@ -289,9 +313,10 @@ export default class Game {
     }
     this._room.init();
     // TODO: avoid using protected members
-    this._room._socket = this._socket;
-    this._room._width = width;
-    this._room._height = height;
+    // TODO: implement the following block
+    this._room.socket = this._socket;
+    this._room._width = width; // TODO: use originalWidth
+    this._room._height = height; // TODO: use originalHeight
     this._room._visibleHeight = viewportBase;
     this._room._visibleWidth = viewportBase * aspectRatio;
     this._room._viewportBuffer = viewportBuffer;
