@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
-import PlayerInfoPanel from './PlayerInfoPanel';
-import Leaderboard from './Leaderboard';
-import InfoPanel from './InfoPanel';
-import Player from './Player';
-import BinaryStream from './BinaryStream';
+import PlayerInfoPanel from './PlayerInfoPanel.js';
+import Leaderboard from './Leaderboard.js';
+import InfoPanel from './InfoPanel.js';
+import Player from './Player.js';
+import BinaryStream from './BinaryStream.js';
 
 export default class Room extends PIXI.Container {
   _visibleWidth = 1320;
@@ -42,7 +42,6 @@ export default class Room extends PIXI.Container {
     this._leaderboard = new Leaderboard(this, config.leaderboard);
     this._leaderboard.x = 8;
     this._leaderboard.y = 8;
-    this._leaderboard.items = [{id: 1, name: 'player', mass: 32}, {id: 2, name: 'bot', mass: 32}]; //TODO: remove
 
     this._playerInfoPanel = new PlayerInfoPanel(this, config.playerInfoPanel);
     this._playerInfoPanel.x = 8;

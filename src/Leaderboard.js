@@ -1,6 +1,6 @@
 import Panel from './ui/Panel';
 import { Graphics, Text } from 'pixi.js';
-import { delayed_call } from './utils';
+import { delayed_call } from './utils.js';
 
 export default class Leaderboard extends Panel {
   _items = [];

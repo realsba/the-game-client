@@ -1,13 +1,28 @@
 import './style.css';
 
 import * as PIXI from 'pixi.js';
-import Config from './Config';
-import Room from './Room';
+import Config from './Config.js';
+import Game from './Game.js';
+
+import { Avatar, Cell, CellDef, Virus } from "./Cell.js";
 
 const app = new PIXI.Application({resizeTo: window});
 document.body.appendChild(app.view);
 const config = new Config();
-const room = new Room(app.stage, config);
+
+const game = new Game(app.stage, config);
+game.startConnection('ws://127.0.0.1:9002');
+const room = game._room;
+
+const def = new CellDef();
+def.x = 300;
+def.y = 300;
+def.radius = 100;
+def.color = 0xFF00FF;
+def.name = '0xFF00FF';
+
+const cell = new Avatar(room, def, 1);
+cell.draw();
 
 let elapsed = 0.0;
 app.ticker.add((delta) => {
@@ -17,8 +32,6 @@ app.ticker.add((delta) => {
 });
 
 let resizeHandler = () => {
-  //infoPanel.x = window.innerWidth - infoPanel.width - 8;
-  //playerInfoPanel.y = window.innerHeight - playerInfoPanel.height - 8;
   room.setScreenSize(window.innerWidth, window.innerHeight);
 }
 

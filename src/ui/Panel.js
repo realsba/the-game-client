@@ -1,4 +1,4 @@
-import Control from './Control';
+import Control from './Control.js';
 
 export default class Panel extends Control {
   constructor(view, config) {

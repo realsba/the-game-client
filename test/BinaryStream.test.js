@@ -1,7 +1,7 @@
 import chai from 'chai';
-import BinaryStream from '../src/BinaryStream.js';
-
 const should = chai.should();
+
+import BinaryStream from '../src/BinaryStream.js';
 
 describe('BinaryStream', () => {
   describe('UInt8', () => {

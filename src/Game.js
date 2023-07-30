@@ -1,7 +1,7 @@
-import BinaryStream from './BinaryStream';
-import {PlayerInfo} from './Player';
-import Room from './Room';
-import {CellDef} from "./Cell.js";
+import BinaryStream from './BinaryStream.js';
+import { PlayerInfo } from './Player.js';
+import Room from './Room.js';
+import { CellDef } from "./Cell.js";
 
 export default class Game {
   _room = null;
@@ -311,30 +311,44 @@ export default class Game {
     const scale = stream.readFloat();
     const cellDefs = [];
     let cnt = stream.readUInt16();
-    for (; cnt>0; --cnt) {
+    for (; cnt > 0; --cnt) {
       const def = new CellDef();
       cellDefs.push(def);
-      def._type = stream.readUInt8();
-      def._id = stream.readUInt32();
-      def._x = stream.readFloat();
-      def._y = stream.readFloat();
-      def._mass = stream.readUInt32();
-      def._radius = stream.readUInt16();
-      def._color = stream.readUInt8();
+      def.type = stream.readUInt8();
+      def.id = stream.readUInt32();
+      def.x = stream.readFloat();
+      def.y = stream.readFloat();
+      def.mass = stream.readUInt32();
+      def.radius = stream.readUInt16();
+      def.color = stream.readUInt8();
       if (def.isAvatar()) {
-        def._playerId = stream.readUInt32();
-        def._name = players[def._playerId]._name;
+        def.playerId = stream.readUInt32();
+        def.name = this._players[def.playerId].name;
         // def._protection = stream.readUInt32();
       }
       if (def.isMoving()) {
-        def._vx = stream.readFloat();
-        def._vy = stream.readFloat();
+        def.vx = stream.readFloat();
+        def.vy = stream.readFloat();
       }
-      def._color = this._config.colors[def._color];
+      def.color = this._config.colors[def.color];
     }
-    const removed = stream.read(['arr16', 'uint32']);
-    const selfAvatarsInfo = stream.read(['arr8', {'id': 'uint32', 'maxSpeed': 'float', 'protection': 'uint32'}]);
-    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
+
+    const removed = [];
+    cnt = stream.readUInt16();
+    for (; cnt > 0; --cnt) {
+      removed.push(stream.readUInt32());
+    }
+
+    const selfAvatarsInfo = [];
+    cnt = stream.readUInt8();
+    for (; cnt > 0; --cnt) {
+      const id = stream.readUInt32();
+      const maxSpeed = stream.readFloat();
+      const protection = stream.readUInt32();
+      selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed, protection: protection});
+    }
+
+    // this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo); // TODO: fix
     const arrowPlayerId = stream.readUInt32();
     if (arrowPlayerId !== this._room._arrowPlayerId) {
       if (arrowPlayerId) {

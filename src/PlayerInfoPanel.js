@@ -1,6 +1,6 @@
-import Panel from './ui/Panel';
+import Panel from './ui/Panel.js';
 import { Text } from 'pixi.js';
-import { delayed_call } from './utils';
+import { delayed_call } from './utils.js';
 
 export default class PlayerInfoPanel extends Panel {
   _posX = 0;

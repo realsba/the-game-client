@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import Vec2D from './Vec2D';
+import Vec2D from './Vec2D.js';
 
 function blur(color, x) {
   let r = (color >> 16) & 0xFF;
