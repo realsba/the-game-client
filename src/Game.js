@@ -350,7 +350,7 @@ export default class Game {
       selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed, protection: protection});
     }
 
-    // this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo); // TODO: fix
+    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo); // TODO: fix
     const arrowPlayerId = stream.readUInt32();
     if (arrowPlayerId !== this._room._arrowPlayerId) {
       if (arrowPlayerId) {

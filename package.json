@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/realsba/the-game-client#readme",
   "dependencies": {
+    "@pixi/ui": "^0.8.1",
     "pixi.js": "^7.2.4"
   },
   "devDependencies": {

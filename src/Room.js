@@ -4,6 +4,7 @@ import Leaderboard from './Leaderboard.js';
 import InfoPanel from './InfoPanel.js';
 import Player from './Player.js';
 import BinaryStream from './BinaryStream.js';
+import { Cell, Avatar, Food, Mass, Virus, Mother } from './Cell.js';
 
 export default class Room extends PIXI.Container {
   _visibleWidth = 1320;
@@ -64,8 +65,8 @@ export default class Room extends PIXI.Container {
   }
 
   init() {
-   Room.prototype.frame = this.initFrame;
-   Room.prototype.$update = this.fakeUpdate;
+    this.frame = this.initFrame;
+    this.$update = this.fakeUpdate;
     this.lastUpdate = Date.now() + 1000;
     this._cells.clear();
     this._simulatedCells = [];
@@ -146,32 +147,33 @@ export default class Room extends PIXI.Container {
     }
   }
 
-// Room.prototype._initFrame = function(now, tick, scale, cellDefs, removed) {
-//   Room.prototype.frame = this.frame;
-//   Room.prototype.$update = this.update;
-//   this.lastUpdate = now;
-//   this.tick = tick;
-//   this.setServerScale(scale);
-//   cellDefs.forEach(function (def) {
-//     this.modifyCell(def);
-//   }, this);
-// };
+  initFrame(now, tick, scale, cellDefs, removed) {
+    this.frame = this._frame;     // TODO: fix
+    this.$update = this.update;  // TODO: fix
+    this.lastUpdate = now;
+    this.tick = tick;
+    this.setServerScale(scale);
+    cellDefs.forEach((def) => {
+      this.modifyCell(def);
+    }, this); // TODO: remove this
+  };
 
-// Room.prototype._frame = function(now, tick, scale, cellDefs, removed, selfAvatarsInfo) {
-//   this.tick = tick;
-//   this.setServerScale(scale);
-//   cellDefs.forEach(function (def) {
-//     this.modifyCell(def);
-//   }, this);
-//   removed.forEach(function (id) {
-//     this.removeCell(id);
-//   }, this);
-//   selfAvatarsInfo.forEach(function (item) {
-//     let avatar = this._cells.get(item['id']);
-//     avatar._maxSpeed = item['maxSpeed'];
-//     avatar._protection = item['protection'];
-//   }, this);
-// };
+  // TODO: check if arg this is needed
+  _frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo) {
+    this.tick = tick;
+    this.setServerScale(scale);
+    cellDefs.forEach((def) => {
+      this.modifyCell(def);
+    }, this);
+    removed.forEach((id) => {
+      this.removeCell(id);
+    }, this);
+    selfAvatarsInfo.forEach((item) => {
+      let avatar = this._cells.get(item.id);
+      avatar._maxSpeed = item.maxSpeed;
+      avatar._protection = item.protection;
+    }, this);
+  };
 
   update() {
     let now = Date.now();
@@ -329,9 +331,9 @@ export default class Room extends PIXI.Container {
       }
       this._cells.set(cell.id, cell);
       if (def.isFood()) {
-        this._foodLayer.addChild(cell.graphics);
+        this._foodLayer.addChild(cell);
       } else {
-        this._cellsLayer.addChild(cell.graphics);
+        this._cellsLayer.addChild(cell);
         if (cell.playerId === this._player.id) {
           this._player.addAvatar(cell);
         }
@@ -351,8 +353,8 @@ export default class Room extends PIXI.Container {
       this._cellsLayer.children.forEach(function (item, i) {
         item.index = i;
       });
-      this._cellsLayer.children.sort(function (a, b) {
-        let res = a.object.mass - b.object.mass;
+      this._cellsLayer.children.sort((a, b) => {
+        const res = a.mass - b.mass;
         return res === 0 ? a.index - b.index : res;
       });
     }
@@ -372,7 +374,7 @@ export default class Room extends PIXI.Container {
       if (cell.playerId === this._player.id) {
         this._player.removeAvatar(cell);
       }
-      cell.graphics.parent.removeChild(cell.graphics); // TODO: encapsulate logic
+      cell.parent.removeChild(cell); // TODO: encapsulate logic
       this._cells.delete(cellId);
     }
   }

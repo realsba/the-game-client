@@ -184,6 +184,10 @@ export class Cell extends PIXI.Graphics {
     });
   }
 
+  get mass() {
+    return this._mass;
+  }
+
   toString = function () {
     return `${this._className}: id=${this._id} mass=${this._mass} radius=${this._radius}`
       `(${this._position._x}:${this._position._y})`;
