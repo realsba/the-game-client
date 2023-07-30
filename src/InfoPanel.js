@@ -109,7 +109,7 @@ export default class InfoPanel extends Panel {
     const bytesOut = this._bytesOut.value();
     const packetsIn = this._packetsIn.value();
     const packetsOut = this._packetsOut.value();
-    this._connectionLabel.text = `${bytesIn}/${bytesOut} ${packetsIn}/${packetsOut}`;
+    this._connectionLabel.text = `${packetsIn}/${packetsOut} ${bytesIn}/${bytesOut}`;
     const width = this._label.width + 16;
     const height = this._label.height + this._connectionLabel.height;
     this.resize(width, height);

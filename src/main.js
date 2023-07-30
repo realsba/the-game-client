@@ -28,7 +28,8 @@ let elapsed = 0.0;
 app.ticker.add((delta) => {
   const dt = delta / 60;
   room.update();
-  room._infoPanel.fps = app.ticker.FPS; // TODO: do not use protected members
+  //room._infoPanel.fps = app.ticker.FPS; // TODO: do not use protected members
+  game.update();
 });
 
 let resizeHandler = () => {

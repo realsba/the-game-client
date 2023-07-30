@@ -20,6 +20,7 @@ export default class Game {
   _lastPingTime;
   _screenWidth;
   _screenHeight;
+  _infoPanelLastUpdate = Date.now();
 
   _dispatcher = {
     1: (stream) => this.onPacketPong(stream),
@@ -62,40 +63,41 @@ export default class Game {
     this._bytesOut += buffer.byteLength;
   }
 
-  // function update() {
-  //   ++frames;
-  //   let now = Date.now();
-  //   let dt = now - infoPanelLastUpdate;
-  //   if (dt > 250) {
-  //     let k = 1000 / dt;
-  //     infoPanel.fps = frames * k;
-  //     infoPanel.packetsIn = packetsIn * k;
-  //     infoPanel.packetsOut = packetsOut * k;
-  //     infoPanel.bytesIn = bytesIn * k;
-  //     infoPanel.bytesOut = bytesOut * k;
-  //     frames = 0;
-  //     packetsIn = 0;
-  //     packetsOut = 0;
-  //     bytesIn = 0;
-  //     bytesOut = 0;
-  //     infoPanelLastUpdate = now;
-  //   }
-  //   if (this._ready) {
-  //     if (mousePositionChanged) {
-  //       let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * this._screenWidth) / room._scale;
-  //       let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * this._screenHeight) / room._scale;
-  //       let binary = new jBinary(5);
-  //       binary.writeUInt8(5);
-  //       binary.writeUInt16(x);
-  //       binary.writeUInt16(y);
-  //       send(binary.view.buffer);
-  //       mousePositionChanged = false;
-  //       room._pointerX = x;
-  //       room._pointerY = y;
-  //     }
-  //     room.$update();
-  //   }
-  // }
+  update() {
+    // TODO: use external time counter
+    ++this._frames;
+    let now = Date.now();
+    let dt = now - this._infoPanelLastUpdate;
+    if (dt > 250) {
+      let k = 1000 / dt;
+      this._room._infoPanel.fps = frames * k;
+      this._room._infoPanel.packetsIn = this._packetsIn * k;
+      this._room._infoPanel.packetsOut = this._packetsOut * k;
+      this._room._infoPanel.bytesIn = this._bytesIn * k;
+      this._room._infoPanel.bytesOut = this._bytesOut * k;
+      this._frames = 0;
+      this._packetsIn = 0;
+      this._packetsOut = 0;
+      this._bytesIn = 0;
+      this._bytesOut = 0;
+      this._infoPanelLastUpdate = now;
+    }
+    // if (this._ready) {
+    //   if (mousePositionChanged) {
+    //     let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * this._screenWidth) / room._scale;
+    //     let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * this._screenHeight) / room._scale;
+    //     let binary = new jBinary(5);
+    //     binary.writeUInt8(5);
+    //     binary.writeUInt16(x);
+    //     binary.writeUInt16(y);
+    //     send(binary.view.buffer);
+    //     mousePositionChanged = false;
+    //     room._pointerX = x;
+    //     room._pointerY = y;
+    //   }
+    //   room.$update();
+    // }
+  }
 
   sendGreeting(sid) {
     const stream = new BinaryStream(new ArrayBuffer(35));
