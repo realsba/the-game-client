@@ -41,8 +41,7 @@ export default class Vec2D {
     }
   };
 
-  // TODO: rename to reset()
-  zero() {
+  reset() {
     this._x = 0;
     this._y = 0;
   };

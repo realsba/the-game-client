@@ -256,7 +256,7 @@ export class Cell extends PIXI.Graphics {
     this._positionSmoother.smooth(dt);
     this.position.x = this._position._x * this._scale;
     this.position.y = this._position._y * this._scale;
-    this._force.zero();
+    this._force.reset();
   };
 
   simulate(dt) {

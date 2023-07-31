@@ -290,15 +290,14 @@ export default class Room extends PIXI.Container {
     this._player._id = playerId;
     this._player._x = x;
     this._player._y = y;
-    this._leaderboard.onMouseDown = (mouse) => {
-      const event = mouse.data.originalEvent;
+    this._leaderboard.onMouseDown = (event) => {
       if (event.ctrlKey) {
         const stream = new BinaryStream(5);
         stream.writeUInt8(10);
-        stream.writeUInt32(mouse.target.playerId);
+        stream.writeUInt32(event.target.playerId);
         this.socket.send(stream.buffer);
       }
-      mouse.stopPropagation();
+      event.stopPropagation();
     };
   };
 
