@@ -174,14 +174,17 @@ export class Cell extends PIXI.Graphics {
       this._alphaAnimator.init(0, 1, 2);
     }
 
-    this.interactive = true; // TODO: fix
-    this.on('mousedown', function (mouse) {
-      const event = mouse.data.originalEvent;
-      if (event.ctrlKey && event.altKey) {
-        console.log(mouse.target.object.toString());
+    this.eventMode = 'static';
+    this.onmousedown = (event) => {
+      if (event.ctrlKey) {
+        if (event.altKey) {
+          console.log(event.target);
+        } else {
+          console.log(event.target.toString());
+        }
       }
-      mouse.stopPropagation();
-    });
+      event.stopPropagation();
+    }
   }
 
   get id() {
@@ -196,9 +199,9 @@ export class Cell extends PIXI.Graphics {
     return this._playerId;
   }
 
-  toString = function () {
-    return `${this._className}: id=${this._id} mass=${this._mass} radius=${this._radius}`
-      `(${this._position._x}:${this._position._y})`;
+  toString() {
+    return `${this.constructor.name}: id=${this._id} mass=${this._mass} radius=${this._radius}`+
+      ` (${this._position._x >> 0}:${this._position._y >> 0})`;
   };
 
   modify(def) {
@@ -257,7 +260,7 @@ export class Cell extends PIXI.Graphics {
   };
 
   simulate(dt) {
-    this.simulateInternal(dt, this._room._resistanceRatio); // TODO: use getter
+    this.simulateInternal(dt, this._room._resistanceRatio); // TODO: use getter instead of Room::_resistanceRatio
   };
 
   animate(dt) {
