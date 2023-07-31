@@ -8,11 +8,16 @@ import { Cell, Avatar, Food, Mass, Virus, Mother } from './Cell.js';
 
 export default class Room extends PIXI.Container {
   socket; // TODO: remove related code
+
   _visibleWidth = 1320;
   _visibleHeight = 743;
+  _screenWidth = 640;
+  _screenHeight = 480;
+
   _serverScale = 1;
   _scaleRatio = 1;
   _scale = 1;
+
   tick = 0;
   arrowPlayerX = 0;
   arrowPlayerY = 0;
@@ -21,9 +26,6 @@ export default class Room extends PIXI.Container {
 
   _cells = new Map();
   _player = new Player();
-
-  _screenWidth = 640;
-  _screenHeight = 480;
 
   _gridLayer = this.addChild(new PIXI.Graphics());
   _layers = this.addChild(new PIXI.Graphics());
@@ -254,6 +256,7 @@ export default class Room extends PIXI.Container {
     this.placePlayerInfoPanel();
     this.placeInfoPanel();
     this.onChangeScale();
+    this.hitArea = new PIXI.Rectangle(0, 0, width, height);
   }
 
   setScaleRatio(ratio) {
@@ -275,9 +278,9 @@ export default class Room extends PIXI.Container {
   onChangeScale() {
     this._scale = this._scaleRatio * this._screenHeight / (this._visibleHeight * this._serverScale);
     this.draw();
-    this._cells.forEach(function(cell) {
-      cell.setScale(this.scale);
-    }, this);
+    this._cells.forEach((cell) => {
+      cell.setScale(this._scale);
+    });
   }
 
   play(playerId, x, y, maxMass) {

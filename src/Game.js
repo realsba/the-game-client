@@ -1,9 +1,10 @@
+import { Application } from 'pixi.js';
 import BinaryStream from './BinaryStream.js';
 import { PlayerInfo } from './Player.js';
 import Room from './Room.js';
 import { CellDef } from "./Cell.js";
 
-export default class Game {
+export default class Game extends Application {
   _screenWidth;
   _screenHeight;
   _scaleModifier = 100;
@@ -42,15 +43,16 @@ export default class Game {
     15: (stream) => this.onPacketChatMessage(stream)
   };
 
-  constructor(view, config) {
+  constructor(options, config) {
+    super(options);
     this._config = config;
-    this._room = new Room(view, config);
+    this._room = new Room(this.stage, config);
     // TODO: implement
     //let stopSprite = new PIXI.Sprite.fromImage('img/stop.png');
     //stopSprite.visible = false;
   }
 
-  resize(width, height) {
+  setScreenSize(width, height) {
     this._screenWidth = width;
     this._screenHeight = height;
     this._room.setScreenSize(width, height);

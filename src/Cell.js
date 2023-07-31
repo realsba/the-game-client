@@ -174,7 +174,7 @@ export class Cell extends PIXI.Graphics {
       this._alphaAnimator.init(0, 1, 2);
     }
 
-    this.interactive = true;
+    this.interactive = true; // TODO: fix
     this.on('mousedown', function (mouse) {
       const event = mouse.data.originalEvent;
       if (event.ctrlKey && event.altKey) {
