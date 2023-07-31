@@ -87,22 +87,21 @@ export default class Game extends Application {
       this._bytesOut = 0;
       this._infoPanelLastUpdate = now;
     }
-    // TODO: implement
-    // if (this._ready) {
-    //   if (mousePositionChanged) {
-    //     let x = stopped || this._isSpectateMode ? 0 : (mousePosition.x - 0.5 * this._screenWidth) / room._scale;
-    //     let y = stopped || this._isSpectateMode ? 0 : (mousePosition.y - 0.5 * this._screenHeight) / room._scale;
-    //     let binary = new jBinary(5);
-    //     binary.writeUInt8(5);
-    //     binary.writeUInt16(x);
-    //     binary.writeUInt16(y);
-    //     send(binary.view.buffer);
-    //     mousePositionChanged = false;
-    //     room._pointerX = x;
-    //     room._pointerY = y;
-    //   }
-    //   room.$update();
-    // }
+    if (this._ready) {
+      if (this._mousePositionChanged) {
+        const x = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale; // TODO: avoid using protected members
+        const y = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale; // TODO: avoid using protected members
+        const stream = new BinaryStream(5);
+        stream.writeUInt8(5);
+        stream.writeUInt16(x);
+        stream.writeUInt16(y);
+        this.send(stream.buffer);
+        this._mousePositionChanged = false;
+        this._room._pointerX = x; // TODO: avoid using protected members
+        this._room._pointerY = y; // TODO: avoid using protected members
+      }
+      // this._room.$update(); // TODO: implement
+    }
   }
 
   /**
@@ -178,15 +177,15 @@ export default class Game extends Application {
   setMousePosition(point) {
     if (point === false || point === true) {
       if (stopped !== point) {
-        stopped = point;
-        mousePositionChanged = true;
+        this._stopped = point;
+        this._mousePositionChanged = true;
       }
       return;
     }
-    if (mousePosition.x !== point.x || mousePosition.y !== point.y) {
-      mousePosition.x = point.x;
-      mousePosition.y = point.y;
-      mousePositionChanged = true;
+    if (this._mousePosition.x !== point.x || this._mousePosition.y !== point.y) {
+      this._mousePosition.x = point.x;
+      this._mousePosition.y = point.y;
+      this._mousePositionChanged = true;
     }
   }
 

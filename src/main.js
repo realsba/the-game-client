@@ -13,19 +13,14 @@ const game = new Game(
   },
   config
 );
-//game.stage.eventMode = 'static';
-//game.stage.hitArea = game.screen;
+const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
-
-
-//const game = new Game(app.stage, config);
+game.stage.eventMode = 'static';
+game.stage.hitArea = game.screen;
 game.startConnection('ws://127.0.0.1:9002');
-const room = game._room;
-
-//game.stage.onmousemove = (e) => {
-  //console.log('Mouse moved');
-  //console.log('X', e.data.global.x, 'Y', e.data.global.y);
-//}
+game.stage.onmousemove = (e) => {
+  game.setMousePosition(e.data.global);
+}
 
 let elapsed = 0.0;
 game.ticker.add((delta) => {
