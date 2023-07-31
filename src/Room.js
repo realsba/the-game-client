@@ -67,7 +67,7 @@ export default class Room extends PIXI.Container {
 
   init() {
     this.frame = this.initFrame;
-    this.$update = this.fakeUpdate;
+    //this.$update = this.fakeUpdate; // TODO: fix
     this.lastUpdate = Date.now() + 1000;
     this._cells.clear();
     this._simulatedCells = [];
@@ -150,13 +150,13 @@ export default class Room extends PIXI.Container {
 
   initFrame(now, tick, scale, cellDefs, removed) {
     this.frame = this._frame;     // TODO: fix
-    this.$update = this.update;  // TODO: fix
+    this.$update = this.update;   // TODO: fix
     this.lastUpdate = now;
     this.tick = tick;
     this.setServerScale(scale);
     cellDefs.forEach((def) => {
       this.modifyCell(def);
-    }, this); // TODO: remove this
+    }, this);
   };
 
   // TODO: check if arg this is needed

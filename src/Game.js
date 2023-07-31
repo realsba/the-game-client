@@ -7,13 +7,9 @@ export default class Game {
   _screenWidth;
   _screenHeight;
   _scaleModifier = 100;
-  /**
-   * @type {Room}
-   */
+  /** @type {Room} */
   _room = null;
-  /**
-   * @type {WebSocket}
-   */
+  /** @type {WebSocket} */
   _socket = null;
   _ready = false;
   _players = {};

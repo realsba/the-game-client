@@ -184,8 +184,16 @@ export class Cell extends PIXI.Graphics {
     });
   }
 
+  get id() {
+    return this._id;
+  }
+
   get mass() {
     return this._mass;
+  }
+
+  get playerId() {
+    return this._playerId;
   }
 
   toString = function () {
