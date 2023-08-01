@@ -25,7 +25,6 @@ game.stage.onmousemove = (e) => {
 let elapsed = 0.0;
 game.ticker.add((delta) => {
   const dt = delta / 60;
-  room.update();
   room.infoPanel.fps = game.ticker.FPS;
   game.update();
 });
@@ -34,13 +33,11 @@ const resizeHandler = () => {
   game.setScreenSize(window.innerWidth, window.innerHeight);
 }
 
-/*
+window.onresize = resizeHandler;
+
 window.addEventListener('keydown', (event) => {
   if (event.repeat) {
     return;
-  }
-  if (event.ctrlKey) {
-    game.setMousePosition(true);
   }
   const code = event.code;
   if (code === 'Enter') {
@@ -65,22 +62,16 @@ window.addEventListener('keydown', (event) => {
   if (code === 'Escape') {
     // toggleStartDialog(); TODO: implement
   } else if (code === 'Space') {
-    game.actionSplit($rootScope['pixiInteractionManager'].mouse.global);
-  } else if (keyCode == 48) {
+    //game.actionSplit($rootScope['pixiInteractionManager'].mouse.global);
+  } else if (code === 'Digit0') {
     game.resetScale();
-  } else if (keyCode == 81 || keyCode == 87) {
-    game.actionEject($rootScope['pixiInteractionManager'].mouse.global);
-  } else if (keyCode == 187) {
+  // } else if (code == 81 || code == 87) {
+  //   game.actionEject($rootScope['pixiInteractionManager'].mouse.global);
+  } else if (code === 'Equal') {
     game.incScale();
-  } else if (keyCode == 189) {
+  } else if (code === 'Minus') {
     game.decScale();
   }
 });
 
-window.addEventListener('keyup', (event) => {
-  console.log('keyup', event.keyCode, event.code);
-});
-*/
-
-window.onresize = resizeHandler;
 resizeHandler();

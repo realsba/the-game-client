@@ -1,4 +1,4 @@
-import { Application } from 'pixi.js';
+import { Application, Point } from 'pixi.js';
 import BinaryStream from './BinaryStream.js';
 import { PlayerInfo } from './Player.js';
 import Room from './Room.js';
@@ -45,27 +45,31 @@ export default class Game extends Application {
 
   constructor(options, config) {
     super(options);
+
     this._config = config;
+
     this._room = new Room(this.stage, config);
-    // TODO: implement
-    //let stopSprite = new PIXI.Sprite.fromImage('img/stop.png');
-    //stopSprite.visible = false;
+    this._room.leaderboard.onMouseDown = (event) => {
+      if (event.ctrlKey) {
+        const stream = new BinaryStream(5);
+        stream.writeUInt8(10);
+        stream.writeUInt32(event.target.playerId);
+        this.#send(stream.buffer);
+      }
+      event.stopPropagation();
+    };
   }
 
   setScreenSize(width, height) {
     this._screenWidth = width;
     this._screenHeight = height;
     this._room.setScreenSize(width, height);
-    // TODO: implement
-    // infoPanel.onResize();
-    // stopSprite.x = this._screenWidth - 128; // TODO: change -128 to -stopSprite.width
-    // stopSprite.y = infoPanel.y + infoPanel.height;
   }
 
   /**
    * @param {ArrayBuffer} buffer
    */
-  send(buffer) {
+  #send(buffer) {
     this._socket.send(buffer);
     ++this._packetsOut;
     this._bytesOut += buffer.byteLength;
@@ -89,18 +93,19 @@ export default class Game extends Application {
     }
     if (this._ready) {
       if (this._mousePositionChanged) {
+        // TODO: check if it is necessary to send Packet 'Pointer' in SpectateMode
         const x = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale; // TODO: avoid using protected members
         const y = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale; // TODO: avoid using protected members
         const stream = new BinaryStream(5);
         stream.writeUInt8(5);
         stream.writeUInt16(x);
         stream.writeUInt16(y);
-        this.send(stream.buffer);
+        this.#send(stream.buffer);
         this._mousePositionChanged = false;
         this._room._pointerX = x; // TODO: avoid using protected members
         this._room._pointerY = y; // TODO: avoid using protected members
       }
-      // this._room.$update(); // TODO: implement
+      this._room.update();
     }
   }
 
@@ -111,7 +116,7 @@ export default class Game extends Application {
     const stream = new BinaryStream(35);
     stream.writeUInt8(3);
     stream.writeString(sid ? sid : '');
-    this.send(stream.buffer);
+    this.#send(stream.buffer);
   }
 
   /**
@@ -123,7 +128,7 @@ export default class Game extends Application {
     stream.writeUInt8(4);
     stream.writeString(name);
     stream.writeUInt8(color);
-    this.send(stream.buffer);
+    this.#send(stream.buffer);
   }
 
   /**
@@ -133,7 +138,7 @@ export default class Game extends Application {
     const stream = new BinaryStream(5);
     stream.writeUInt8(8);
     stream.writeUInt32(playerId);
-    this.send(stream.buffer);
+    this.#send(stream.buffer);
   }
 
   actionEject(point) {
@@ -142,7 +147,7 @@ export default class Game extends Application {
       stream.writeUInt8(6);
       stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
       stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
-      this.send(stream.buffer);
+      this.#send(stream.buffer);
     }
   }
 
@@ -152,7 +157,7 @@ export default class Game extends Application {
       stream.writeUInt8(7);
       stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
       stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
-      this.send(stream.buffer);
+      this.#send(stream.buffer);
     }
   }
 
@@ -164,27 +169,16 @@ export default class Game extends Application {
       const stream = new BinaryStream(1024);
       stream.writeUInt8(2);
       stream.writeString(text);
-      this.send(stream.buffer);
+      this.#send(stream.buffer);
     }
   }
 
-  // TODO: implement if needed
-  // stop(value) {
-  //   stopSprite.visible = value;
-  // }
-
-  // TODO: fix
+  /**
+   * @param {Point} point
+   */
   setMousePosition(point) {
-    if (point === false || point === true) {
-      if (stopped !== point) {
-        this._stopped = point;
-        this._mousePositionChanged = true;
-      }
-      return;
-    }
-    if (this._mousePosition.x !== point.x || this._mousePosition.y !== point.y) {
-      this._mousePosition.x = point.x;
-      this._mousePosition.y = point.y;
+    if (!point.equals(this._mousePosition)) {
+      this._mousePosition = point.clone();
       this._mousePositionChanged = true;
     }
   }
@@ -253,7 +247,7 @@ export default class Game extends Application {
     if (this._socket) {
       const stream = new BinaryStream();
       stream.writeUInt8(1);
-      this.send(stream.buffer);
+      this.#send(stream.buffer);
       this._lastPingTime = Date.now();
     }
   }
@@ -277,7 +271,8 @@ export default class Game extends Application {
       localStorage.setItem('sid', sid);
     }
     // TODO: remove the following temporary code
-    this.actionPlay('sba', 2);
+    //this.actionPlay('sba', 2);
+    this.actionSpectate(102);
   }
 
   /**
@@ -311,9 +306,8 @@ export default class Game extends Application {
     this._room.init();
     // TODO: avoid using protected members
     // TODO: implement the following block
-    this._room.socket = this._socket;
-    this._room._width = width; // TODO: use originalWidth
-    this._room._height = height; // TODO: use originalHeight
+    this._room._originalWidth = width;
+    this._room._originalHeight = height;
     this._room._visibleHeight = viewportBase;
     this._room._visibleWidth = viewportBase * aspectRatio;
     this._room._viewportBuffer = viewportBuffer;
@@ -397,13 +391,12 @@ export default class Game extends Application {
   onPacketLeaderboard(stream) {
     const items = [];
     let count = stream.readUInt8();
-    for (; count>0; --count) {
+    for (; count > 0; --count) {
       const id = stream.readUInt32();
       const mass = stream.readUInt32();
       items.push({'id': id, 'name': this._players[id].name, 'mass': mass});
     }
-    // TODO: avoid using protected members
-    this._room._leaderboard.items = items;
+    this._room.leaderboard.items = items;
   }
 
   /**

@@ -352,6 +352,7 @@ export class Avatar extends Cell {
     this.addChild(this._textMass);
     this.updateTextPosition();
 
+    // TODO: implement in class Game
     this.on('mousedown', function (mouse) {
       const event = mouse.data.originalEvent;
       if (event.ctrlKey && !event.altKey) {
