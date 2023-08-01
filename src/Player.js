@@ -6,7 +6,7 @@ export default class Player {
   _avatars = new Set();
 
   get id() {
-    return this._x;
+    return this._id;
   }
 
   get x() {

@@ -145,8 +145,8 @@ export default class Game extends Application {
     if (this._ready) {
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
-      stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(room._player.x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
+      stream.writeUInt16(room._player.y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
       this.#send(stream.buffer);
     }
   }
@@ -155,8 +155,8 @@ export default class Game extends Application {
     if (this._ready) { // TODO: fix
       const stream = new BinaryStream(5);
       stream.writeUInt8(7);
-      stream.writeUInt16(room._player._x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player._y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(room._player.x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
+      stream.writeUInt16(room._player.y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
       this.#send(stream.buffer);
     }
   }
@@ -271,8 +271,8 @@ export default class Game extends Application {
       localStorage.setItem('sid', sid);
     }
     // TODO: remove the following temporary code
-    //this.actionPlay('sba', 2);
-    this.actionSpectate(102);
+    this.actionPlay('sba', 2);
+    //this.actionSpectate(102);
   }
 
   /**
