@@ -23,8 +23,8 @@ export default class Room extends PIXI.Container {
   _tick = 0;
   _arrowPlayerX = 0;
   _arrowPlayerY = 0;
-  _simulatedCells; // TODO: use Set
-  _animatedCells;  // TODO: use Set
+  #simulatedCells = new Set();
+  #animatedCells = new Set();
 
   _cells = new Map();
   _player = new Player();
@@ -81,8 +81,8 @@ export default class Room extends PIXI.Container {
     this.update = () => {};
     this.lastUpdate = Date.now() + 1000;
     this._cells.clear();
-    this._simulatedCells = [];
-    this._animatedCells = [];
+    this.#simulatedCells.clear();
+    this.#animatedCells.clear();
     this._player.clearAvatars();
     this._foodLayer.removeChildren();
     this._cellsLayer.removeChildren();
@@ -199,10 +199,18 @@ export default class Room extends PIXI.Container {
       avatar._force.assignmentSum(force);
     });
 
-    this._simulatedCells.forEach(cell => cell.simulate(dt));
-    this._simulatedCells = this._simulatedCells.filter(cell => cell.isSimulated());
-    this._animatedCells.forEach(cell => cell.animate(dt));
-    this._animatedCells = this._animatedCells.filter(cell => cell.isAnimated());
+    this.#simulatedCells.forEach(cell => {
+      cell.simulate(dt);
+      if (!cell.isSimulated()) {
+        this.#simulatedCells.delete(cell);
+      }
+    });
+    this.#animatedCells.forEach(cell => {
+      cell.animate(dt);
+      if (!cell.isAnimated()) {
+        this.#animatedCells.delete(cell);
+      }
+    });
 
     this._player.update();
     this._playerInfoPanel.posX = ~~this._player.x;
@@ -274,18 +282,6 @@ export default class Room extends PIXI.Container {
     this._player._y = y;         // TODO: avoid using protected members
   };
 
-  #setCellAsSimulated(cell) {
-    if (this._simulatedCells.indexOf(cell) === -1) {
-      this._simulatedCells.push(cell);
-    }
-  }
-
-  #setCellAsAnimated(cell) {
-    if (this._animatedCells.indexOf(cell) === -1) {
-      this._animatedCells.push(cell);
-    }
-  }
-
   modifyCell(def) {
     /** @type {Cell} cell */
     let cell = this._cells.get(def.id);
@@ -318,10 +314,10 @@ export default class Room extends PIXI.Container {
     }
 
     if (cell.isSimulated()) {
-      this.#setCellAsSimulated(cell);
+      this.#simulatedCells.add(cell);
     }
     if (cell.isAnimated()) {
-      this.#setCellAsAnimated(cell);
+      this.#animatedCells.add(cell);
     }
 
     // TODO: Optimize. Must sort array of children only one time at the end of addition
@@ -333,14 +329,8 @@ export default class Room extends PIXI.Container {
   removeCell(cellId) {
     let cell = this._cells.get(cellId);
     if (cell) {
-      let index = this._simulatedCells.indexOf(cell);
-      if (index !== -1) {
-        this._simulatedCells.splice(index, 1);
-      }
-      index = this._animatedCells.indexOf(cell);
-      if (index !== -1) {
-        this._animatedCells.splice(index, 1);
-      }
+      this.#simulatedCells.delete(cell);
+      this.#animatedCells.delete(cell);
       if (cell.playerId === this._player.id) {
         this._player.removeAvatar(cell);
       }
