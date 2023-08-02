@@ -390,20 +390,14 @@ export default class Game extends PIXI.Application {
 
     this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
     const arrowPlayerId = stream.readUInt32();
-    if (arrowPlayerId !== this._room._arrowPlayerId) {
-      if (arrowPlayerId) {
-        this._room._arrowPlayerX = stream.readFloat();
-        this._room._arrowPlayerY = stream.readFloat();
-        // TODO: fix
-        // if (this._room._directionPanel._player !== players[arrowPlayerId]) {
-        //   this._room._directionPanel._label.text = players[arrowPlayerId]._name;
-        //   this._room._directionPanel._player = players[arrowPlayerId];
-        //   this._room._directionPanel.update();
-        // }
-        // this._room._directionPanel.visible = true; // TODO: fix
-      } else {
-        // this._room._directionPanel.visible = false; // TODO: fix
-      }
+    if (arrowPlayerId) {
+      this._room._arrowPlayerX = stream.readFloat();
+      this._room._arrowPlayerY = stream.readFloat();
+      this._room.directionPanel.playerInfo = this._players[arrowPlayerId];
+      this._room.directionPanel.visible = true;
+    } else {
+      this._room.directionPanel.playerInfo = null;
+      this._room.directionPanel.visible = false;
     }
   }
 
@@ -447,8 +441,8 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerJoin(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status |= 1;
-    // this._room._directionPanel.update(); // TODO: fix
+    this._players[playerId].status |= 1; // TODO: avoid magic numbers
+    this._room.directionPanel.update();
   }
 
   /**
@@ -457,7 +451,7 @@ export default class Game extends PIXI.Application {
   onPacketPlayerLeave(stream) {
     const playerId = stream.readUInt32();
     this._players[playerId].status &= 0xFE; // TODO: avoid magic numbers
-    // this._room._directionPanel.update(); // TODO: fix
+    this._room.directionPanel.update();
   }
 
   /**
@@ -466,7 +460,7 @@ export default class Game extends PIXI.Application {
   onPacketPlayerBorn(stream) {
     const playerId = stream.readUInt32();
     this._players[playerId].status |= 2; // TODO: avoid magic numbers
-    // this._room._directionPanel.update(); // TODO: fix
+    this._room.directionPanel.update();
   }
 
   /**
@@ -474,8 +468,8 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerDead(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId]._status &= 0xFD; // TODO: avoid magic numbers
-    // this._room._directionPanel.update(); // TODO: fix
+    this._players[playerId].status &= 0xFD; // TODO: avoid magic numbers
+    this._room.directionPanel.update();
   }
 
   /**

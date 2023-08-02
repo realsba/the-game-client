@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import PlayerInfoPanel from './PlayerInfoPanel.js';
 import Leaderboard from './Leaderboard.js';
 import InfoPanel from './InfoPanel.js';
+import DirectionPanel from './DirectionPanel.js';
 import Player from './Player.js';
 import { Cell, Avatar, Food, Mass, Virus, Mother } from './Cell.js';
 import Vec2D from './Vec2D.js';
@@ -44,6 +45,15 @@ export default class Room extends PIXI.Container {
   );
   #rightBottomX = 0;
 
+  /** @type {Leaderboard} */
+  #leaderboard;
+  /** @type {PlayerInfoPanel} */
+  #playerInfoPanel;
+  /** @type {InfoPanel} */
+  #infoPanel;
+  /** @type {DirectionPanel} */
+  #directionPanel;
+
   _pointerX;
   _pointerY;
 
@@ -52,32 +62,36 @@ export default class Room extends PIXI.Container {
 
     this._config = config;
 
-    this._leaderboard = new Leaderboard(this, config.leaderboard);
-    this._leaderboard.x = 8;
-    this._leaderboard.y = 8;
+    this.#leaderboard = new Leaderboard(this, config.leaderboard);
+    this.#leaderboard.x = 8;
+    this.#leaderboard.y = 8;
 
-    this._playerInfoPanel = new PlayerInfoPanel(this, config.playerInfoPanel);
-    this._playerInfoPanel.x = 8;
-    this._playerInfoPanel.onResize = () => this.#placePlayerInfoPanel();
+    this.#playerInfoPanel = new PlayerInfoPanel(this, config.playerInfoPanel);
+    this.#playerInfoPanel.x = 8;
+    this.#playerInfoPanel.onResize = () => this.#placePlayerInfoPanel();
 
-    this._infoPanel = new InfoPanel(this, config.infoPanel);
-    this._infoPanel.y = 8;
-    this._infoPanel.onResize = () => this.#placeInfoPanel();
+    this.#infoPanel = new InfoPanel(this, config.infoPanel);
+    this.#infoPanel.y = 8;
+    this.#infoPanel.onResize = () => this.#placeInfoPanel();
 
-    //directionPanel = this.graphics.addChild(new DirectionPanel(config));
-    // this.directionPanel.x = this.leaderboard.x + this.leaderboard.width + 32 + 8;
-    // this.directionPanel.y = 32 + 8;
-    // this.directionPanel.visible = false;
+    this.#directionPanel = this.addChild(new DirectionPanel(config.directionPanel));
+    this.#directionPanel.x = this.#leaderboard.x + this.#leaderboard.width + 32 + 8;
+    this.#directionPanel.y = 32 + 8;
+    this.#directionPanel.visible = false;
 
     view.addChild(this);
   }
 
   get infoPanel() {
-    return this._infoPanel;
+    return this.#infoPanel;
   }
 
   get leaderboard() {
-    return this._leaderboard;
+    return this.#leaderboard;
+  }
+
+  get directionPanel() {
+    return this.#directionPanel;
   }
 
   init() {
@@ -130,7 +144,7 @@ export default class Room extends PIXI.Container {
       this.#debugLayer.lineStyle(1, 0x0000FF, 0.75);
       this.#debugLayer.drawRect(left, top, width, height);
 
-      let k = 1 + 2 * this._viewportBuffer;
+      const k = 1 + 2 * this._viewportBuffer;
       width *= k;
       height *= k;
       left = 0.5 * (this.#screenWidth - width);
@@ -180,11 +194,10 @@ export default class Room extends PIXI.Container {
     this.lastUpdate = now;
     dt *= 0.001;
 
-    // TODO: implement
-    // if (this.directionPanel.visible) {
-    //   let angle = Math.atan2(this._arrowPlayerY - this._player.y, this._arrowPlayerX - this._player.x);
-    //   this.directionPanel.setAngle(angle);
-    // }
+    if (this.#directionPanel.visible) {
+      const angle = Math.atan2(this._arrowPlayerY - this._player.y, this._arrowPlayerX - this._player.x);
+      this.#directionPanel.setAngle(angle);
+    }
 
     const playerForceRatio = 2.5;
     // TODO: avoid using protected members from this._player
@@ -217,9 +230,9 @@ export default class Room extends PIXI.Container {
     });
 
     this._player.update();
-    this._playerInfoPanel.posX = ~~this._player.x;
-    this._playerInfoPanel.posY = ~~this._player.y;
-    this._playerInfoPanel.mass = ~~this._player.mass;
+    this.#playerInfoPanel.posX = ~~this._player.x;
+    this.#playerInfoPanel.posY = ~~this._player.y;
+    this.#playerInfoPanel.mass = ~~this._player.mass;
 
     if (this.#scaleRatio < 1) {
       let k = 0.5 * (1 + 2 * this._viewportBuffer);
@@ -240,11 +253,11 @@ export default class Room extends PIXI.Container {
   }
 
   #placePlayerInfoPanel() {
-    this._playerInfoPanel.y = this.#screenHeight - this._playerInfoPanel.height - 8;
+    this.#playerInfoPanel.y = this.#screenHeight - this.#playerInfoPanel.height - 8;
   }
 
   #placeInfoPanel() {
-    this._infoPanel.x = this.#screenWidth - this._infoPanel.width - 8;
+    this.#infoPanel.x = this.#screenWidth - this.#infoPanel.width - 8;
   }
 
   setScreenSize(width, height) {
@@ -279,8 +292,8 @@ export default class Room extends PIXI.Container {
 
   play(playerId, x, y, maxMass) {
     this.init();
-    this._leaderboard.playerId = playerId;
-    this._playerInfoPanel.maxMass = maxMass;
+    this.#leaderboard.playerId = playerId;
+    this.#playerInfoPanel.maxMass = maxMass;
     this._player._id = playerId; // TODO: avoid using protected members
     this._player._x = x;         // TODO: avoid using protected members
     this._player._y = y;         // TODO: avoid using protected members
