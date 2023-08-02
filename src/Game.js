@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import { Application, Point } from 'pixi.js';
 import BinaryStream from './BinaryStream.js';
 import { PlayerInfo } from './Player.js';
@@ -141,25 +142,32 @@ export default class Game extends Application {
     this.#send(stream.buffer);
   }
 
+  // TODO: avoid using protected members from this._room
+  #getTargetPoint() {
+    return new PIXI.Point(
+      this._room._player.x + (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale,
+      this._room._player.y + (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale
+    );
+  }
+
   actionEject(point) {
     if (this._ready) {
-      // TODO: avoid using protected members from this._room
-      const x = this._room._player.x + (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale;
-      const y = this._room._player.y + (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale;
+      const point = this.#getTargetPoint();
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
-      stream.writeUInt16(x);
-      stream.writeUInt16(y);
+      stream.writeUInt16(point.x);
+      stream.writeUInt16(point.y);
       this.#send(stream.buffer);
     }
   }
 
   actionSplit(point) {
-    if (this._ready) { // TODO: fix
+    if (this._ready) {
+      const point = this.#getTargetPoint();
       const stream = new BinaryStream(5);
       stream.writeUInt8(7);
-      stream.writeUInt16(room._player.x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player.y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(point.x);
+      stream.writeUInt16(point.y);
       this.#send(stream.buffer);
     }
   }

@@ -62,7 +62,7 @@ window.addEventListener('keydown', (event) => {
   if (code === 'Escape') {
     // toggleStartDialog(); TODO: implement
   } else if (code === 'Space') {
-    //game.actionSplit($rootScope['pixiInteractionManager'].mouse.global);
+    game.actionSplit();
   } else if (code === 'Digit0') {
     game.resetScale();
   } else if (code === 'KeyQ' || code === 'KeyW') {
