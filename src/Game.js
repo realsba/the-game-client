@@ -22,7 +22,7 @@ export default class Game extends Application {
   _bytesIn = 0;
   _bytesOut = 0;
   _stopped = false;
-  _isSpectateMode = false;
+  #isSpectateMode = false;
   _lastPingTime;
   _infoPanelLastUpdate = Date.now();
 
@@ -51,11 +51,10 @@ export default class Game extends Application {
 
     this._room = new Room(this.stage, config);
     this._room.leaderboard.onMouseDown = (event) => {
-      if (event.ctrlKey) {
-        const stream = new BinaryStream(5);
-        stream.writeUInt8(10);
-        stream.writeUInt32(event.target.playerId);
-        this.#send(stream.buffer);
+      if (this.#isSpectateMode) {
+        this.actionSpectate(event.target.playerId);
+      } else {
+        this.actionWatch(event.target.playerId);
       }
       event.stopPropagation();
     };
@@ -95,8 +94,8 @@ export default class Game extends Application {
     if (this._ready) {
       if (this._mousePositionChanged) {
         // TODO: check if it is necessary to send Packet 'Pointer' in SpectateMode
-        const x = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale; // TODO: avoid using protected members
-        const y = this._stopped || this._isSpectateMode ? 0 : (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale; // TODO: avoid using protected members
+        const x = this._stopped || this.#isSpectateMode ? 0 : (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale; // TODO: avoid using protected members
+        const y = this._stopped || this.#isSpectateMode ? 0 : (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale; // TODO: avoid using protected members
         const stream = new BinaryStream(5);
         stream.writeUInt8(5);
         stream.writeUInt16(x);
@@ -138,6 +137,16 @@ export default class Game extends Application {
   actionSpectate(playerId) {
     const stream = new BinaryStream(5);
     stream.writeUInt8(8);
+    stream.writeUInt32(playerId);
+    this.#send(stream.buffer);
+  }
+
+  /**
+   * @param {number} playerId
+   */
+  actionWatch(playerId) {
+    const stream = new BinaryStream(5);
+    stream.writeUInt8(10);
     stream.writeUInt32(playerId);
     this.#send(stream.buffer);
   }
@@ -486,7 +495,7 @@ export default class Game extends Application {
     const y = stream.readUInt16();
     const maxMass = stream.readUInt32();
     this._room.play(playerId, x, y, maxMass); // TODO: fix
-    this._isSpectateMode = false;
+    this.#isSpectateMode = false;
     // TODO: implement
     // if (service.onPacketPlayer) {
     //   service.onPlay();
@@ -502,7 +511,7 @@ export default class Game extends Application {
     const y = stream.readUInt16();
     const maxMass = stream.readUInt32();
     this._room.play(playerId, x, y, maxMass);
-    this._isSpectateMode = true;
+    this.#isSpectateMode = true;
     // TODO: implement
     // if (service.onSpectate) {
     //   service.onSpectate();
