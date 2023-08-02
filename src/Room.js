@@ -324,13 +324,9 @@ export default class Room extends PIXI.Container {
       this.#setCellAsAnimated(cell);
     }
 
-    // TODO: можливо краще відкладено сортувати клітинки
+    // TODO: Optimize. Must sort array of children only one time at the end of addition
     if (!def.isFood()) {
-      this._cellsLayer.children.forEach((item, i) => item.index = i);
-      this._cellsLayer.children.sort((a, b) => {
-        const res = a.mass - b.mass;
-        return res === 0 ? a.index - b.index : res;
-      });
+      this._cellsLayer.children.sort((a, b) => a.mass - b.mass);
     }
   }
 

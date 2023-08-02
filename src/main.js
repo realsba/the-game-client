@@ -65,8 +65,8 @@ window.addEventListener('keydown', (event) => {
     //game.actionSplit($rootScope['pixiInteractionManager'].mouse.global);
   } else if (code === 'Digit0') {
     game.resetScale();
-  // } else if (code == 81 || code == 87) {
-  //   game.actionEject($rootScope['pixiInteractionManager'].mouse.global);
+  } else if (code === 'KeyQ' || code === 'KeyW') {
+    game.actionEject();
   } else if (code === 'Equal') {
     game.incScale();
   } else if (code === 'Minus') {

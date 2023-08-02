@@ -143,10 +143,13 @@ export default class Game extends Application {
 
   actionEject(point) {
     if (this._ready) {
+      // TODO: avoid using protected members from this._room
+      const x = this._room._player.x + (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale;
+      const y = this._room._player.y + (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale;
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
-      stream.writeUInt16(room._player.x + (point.x - 0.5 * this._screenWidth) / room._scale);  // TODO: fix
-      stream.writeUInt16(room._player.y + (point.y - 0.5 * this._screenHeight) / room._scale); // TODO: fix
+      stream.writeUInt16(x);
+      stream.writeUInt16(y);
       this.#send(stream.buffer);
     }
   }

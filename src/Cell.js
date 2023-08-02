@@ -195,6 +195,10 @@ export class Cell extends PIXI.Graphics {
     return this._mass;
   }
 
+  set mass(value) {
+    this._mass = value;
+  };
+
   get playerId() {
     return this._playerId;
   }
@@ -233,10 +237,6 @@ export class Cell extends PIXI.Graphics {
       this._radius = value;
       this._radiusAnimator.init(this._viewRadius, value, 1);
     }
-  };
-
-  set mass(value) {
-    this._mass = value;
   };
 
   isSimulated() {
@@ -385,10 +385,14 @@ export class Avatar extends Cell {
     this._textMass.position.y = this._text.position.y + this._text.height - 0.25 * this._textMass.height;
   };
 
-  set mass(mass) {
-    if (mass !== this._mass) {
-      this._mass = mass;
-      this._massAnimator.init(this._viewMass, mass, Math.abs(mass - this._viewMass) <= 5 ? 0.05 : 1);
+  get mass() {
+    return super.mass;
+  }
+
+  set mass(value) {
+    if (value !== this._mass) {
+      super.mass = value;
+      this._massAnimator.init(this._viewMass, value, Math.abs(value - this._viewMass) <= 5 ? 0.05 : 1);
     }
   };
 
