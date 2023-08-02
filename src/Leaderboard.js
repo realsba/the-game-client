@@ -49,7 +49,7 @@ export default class Leaderboard extends Panel {
 
   set playerId(value) {
     this.#playerId = value;
-    this.update();
+    this.#doUpdate();
   }
 
   update = delayed_call(() => this.#doUpdate());
@@ -61,6 +61,7 @@ export default class Leaderboard extends Panel {
       // TODO: use multi style
       //label.text = sprintf('%1$d: <%3$s>%2$s</%3$s> <mass>%4$s</mass>', i + 1, item['name'], style, item['mass']);
       label.text = `${i + 1} ${item.name} ${item.mass}`;
+      label.style = this._config.list[style] ;
       label.visible = true;
       label.playerId = item.id;
     });

@@ -1,11 +1,10 @@
 import * as PIXI from 'pixi.js';
-import { Application, Point } from 'pixi.js';
 import BinaryStream from './BinaryStream.js';
 import { PlayerInfo } from './Player.js';
 import Room from './Room.js';
 import { CellDef } from "./Cell.js";
 
-export default class Game extends Application {
+export default class Game extends PIXI.Application {
   _screenWidth;
   _screenHeight;
   _scaleModifier = 100;
@@ -17,14 +16,14 @@ export default class Game extends Application {
   _players = {};
   _mousePosition = {};
   _mousePositionChanged = false;
-  _packetsIn = 0;
-  _packetsOut = 0;
-  _bytesIn = 0;
-  _bytesOut = 0;
+  #packetsIn = 0;
+  #packetsOut = 0;
+  #bytesIn = 0;
+  #bytesOut = 0;
   _stopped = false;
   #isSpectateMode = false;
-  _lastPingTime;
-  _infoPanelLastUpdate = Date.now();
+  #lastPingTime;
+  #infoPanelLastUpdate = Date.now();
 
   _dispatcher = {
     1: (stream) => this.onPacketPong(stream),
@@ -71,25 +70,25 @@ export default class Game extends Application {
    */
   #send(buffer) {
     this._socket.send(buffer);
-    ++this._packetsOut;
-    this._bytesOut += buffer.byteLength;
+    ++this.#packetsOut;
+    this.#bytesOut += buffer.byteLength;
   }
 
   update() {
     // TODO: use external time counter
     const now = Date.now();
-    const dt = now - this._infoPanelLastUpdate;
+    const dt = now - this.#infoPanelLastUpdate;
     if (dt > 250) {
       let k = 1000 / dt;
-      this._room.infoPanel.packetsIn = this._packetsIn * k;
-      this._room.infoPanel.packetsOut = this._packetsOut * k;
-      this._room.infoPanel.bytesIn = this._bytesIn * k;
-      this._room.infoPanel.bytesOut = this._bytesOut * k;
-      this._packetsIn = 0;
-      this._packetsOut = 0;
-      this._bytesIn = 0;
-      this._bytesOut = 0;
-      this._infoPanelLastUpdate = now;
+      this._room.infoPanel.packetsIn = this.#packetsIn * k;
+      this._room.infoPanel.packetsOut = this.#packetsOut * k;
+      this._room.infoPanel.bytesIn = this.#bytesIn * k;
+      this._room.infoPanel.bytesOut = this.#bytesOut * k;
+      this.#packetsIn = 0;
+      this.#packetsOut = 0;
+      this.#bytesIn = 0;
+      this.#bytesOut = 0;
+      this.#infoPanelLastUpdate = now;
     }
     if (this._ready) {
       if (this._mousePositionChanged) {
@@ -107,6 +106,12 @@ export default class Game extends Application {
       }
       this._room.update();
     }
+  }
+
+  sendPing() {
+    const stream = new BinaryStream();
+    stream.writeUInt8(1);
+    this.#send(stream.buffer);
   }
 
   /**
@@ -194,7 +199,7 @@ export default class Game extends Application {
   }
 
   /**
-   * @param {Point} point
+   * @param {PIXI.Point} point
    */
   setMousePosition(point) {
     if (!point.equals(this._mousePosition)) {
@@ -231,13 +236,13 @@ export default class Game extends Application {
     };
     this._socket.onmessage = (event) => {
       const stream = new BinaryStream(event.data);
-      this._bytesIn += stream.byteLength;
+      this.#bytesIn += stream.byteLength;
       while (stream.hasNext()) {
         const type = stream.readUInt8();
         if (this._dispatcher.hasOwnProperty(type)) {
           this._dispatcher[type](stream);
         }
-        ++this._packetsIn;
+        ++this.#packetsIn;
       }
     }
   }
@@ -265,10 +270,8 @@ export default class Game extends Application {
 
   ping() {
     if (this._socket) {
-      const stream = new BinaryStream();
-      stream.writeUInt8(1);
-      this.#send(stream.buffer);
-      this._lastPingTime = Date.now();
+      this.sendPing();
+      this.#lastPingTime = Date.now();
     }
   }
 
@@ -277,8 +280,8 @@ export default class Game extends Application {
    */
   onPacketPong(stream) {
     const now = Date.now();
-    this._room.infoPanel.ping = (now - this._lastPingTime) >> 0;
-    this._lastPingTime = now;
+    this._room.infoPanel.ping = (now - this.#lastPingTime) >> 0;
+    this.#lastPingTime = now;
     setTimeout(() => this.ping(), 2500);
   }
 
@@ -305,7 +308,7 @@ export default class Game extends Application {
     const viewportBuffer = stream.readFloat();
     const aspectRatio = stream.readFloat();
     const resistanceRatio = stream.readFloat();
-    const elasticityRatio = stream.readFloat();
+    const elasticityRatio = stream.readFloat(); // TODO: this field does not used, remove from the protocol
     const foodResistanceRatio = stream.readFloat();
     let count = stream.readUInt8();
     for (; count > 0; --count) {
@@ -332,7 +335,6 @@ export default class Game extends Application {
     this._room._visibleWidth = viewportBase * aspectRatio;
     this._room._viewportBuffer = viewportBuffer;
     this._room._resistanceRatio = resistanceRatio;
-    this._room._elasticityRatio = elasticityRatio; // TODO: not used
     this._room._foodResistanceRatio = foodResistanceRatio;
     this._room._player._x = 0.5 * width;
     this._room._player._y = 0.5 * height;
@@ -386,7 +388,7 @@ export default class Game extends Application {
       selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed, protection: protection});
     }
 
-    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo); // TODO: fix
+    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
     const arrowPlayerId = stream.readUInt32();
     if (arrowPlayerId !== this._room._arrowPlayerId) {
       if (arrowPlayerId) {
