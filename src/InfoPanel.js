@@ -1,29 +1,28 @@
+import * as PIXI from 'pixi.js';
+import { List } from '@pixi/ui';
 import Panel from './ui/Panel.js';
-import { Text } from 'pixi.js';
 import { delayed_call } from './utils.js';
 
 export class MovingAverage {
-  _measurements = []; // TODO: implement circular buffer
-  _value = 0;
-  _count = 10;
+  #measurements = []; // TODO: implement circular buffer
+  #value = 0;
+  #size = 10;
 
-  constructor(count) {
-    if (count) {
-      this._count = count;
+  constructor(size) {
+    if (size) {
+      this.#size = size;
     }
   }
 
   push(value) {
-    this._measurements.push(value);
-    if (this._measurements.length === this._count) {
-      this._value = this._measurements.reduce(function (pv, cv) {
-        return pv + cv;
-      }, 0) / this._count;
+    this.#measurements.push(value);
+    if (this.#measurements.length === this.#size) {
+      this.#value = this.#measurements.reduce((acc, val) => acc + val, 0) / this.#size;
       this.push = (value) => {
-        this._measurements.push(value);
-        this._value += (-this._measurements.shift() + value) / this._count;
+        this.#measurements.push(value);
+        this.#value += (-this.#measurements.shift() + value) / this.#size;
       };
-      this.value = () => this._value >> 0;
+      this.value = () => this.#value >> 0;
     }
   }
 
@@ -33,85 +32,106 @@ export class MovingAverage {
 }
 
 export default class InfoPanel extends Panel {
-  _ping = 0;
-  _fpsAverage = new MovingAverage();
-  _packetsIn = new MovingAverage();
-  _packetsOut = new MovingAverage();
-  _bytesIn = new MovingAverage();
-  _bytesOut = new MovingAverage();
+  #ping = 0;
+  #fpsAverage = new MovingAverage();
+  #packetsIn = new MovingAverage();
+  #packetsOut = new MovingAverage();
+  #bytesIn = new MovingAverage();
+  #bytesOut = new MovingAverage();
 
-  // TODO: use https://npm.io/package/pixi-tagged-text
-  _label = this.addChild(new Text('...'));
-  _connectionLabel = this.addChild(new Text('...'));
+  #labelFPS;
+  #labelPing;
+  #label;
+  #connectionLabel = this.addChild(new PIXI.Text(''));
+
+  #styleDefault;
+  #styleGood;
+  #styleNormal;
+  #styleBad;
 
   constructor(view, config) {
     super(view, config);
 
-    this._label.x = 8;
-    this._label.style = this._config.label.def;
+    this.#styleDefault = new PIXI.TextStyle(this._config.label.def);
+    this.#styleGood = new PIXI.TextStyle(this._config.label.good);
+    this.#styleNormal = new PIXI.TextStyle(this._config.label.normal);
+    this.#styleBad = new PIXI.TextStyle(this._config.label.bad);
 
-    this._connectionLabel.x = 8;
-    this._connectionLabel.y = this._label.y + this._label.height;
-    this._connectionLabel.style = this._config.connectionLabel;
+    this.#labelFPS = new PIXI.Text('');
+    this.#labelPing = new PIXI.Text('');
+    this.#label = new List({
+      children: [
+        new PIXI.Text('FPS:', this.#styleDefault),
+        this.#labelFPS,
+        new PIXI.Text('ping:', this.#styleDefault),
+        this.#labelPing
+      ]
+    });
+    this.#label.x = 8;
+    this.#label.elementsMargin = 4;
+    this.addChild(this.#label);
+
+    this.#connectionLabel.x = 8;
+    this.#connectionLabel.y = this.#label.y + this.#label.height;
+    this.#connectionLabel.style = this._config.connectionLabel;
 
     this.#doUpdate();
   }
 
   set fps(value) {
-    this._fpsAverage.push(value);
+    this.#fpsAverage.push(value);
     this.update();
   }
 
   set ping(value) {
-    if (this._ping !== value) {
-      this._ping = value;
+    if (this.#ping !== value) {
+      this.#ping = value;
       this.update();
     }
   }
 
   set packetsIn(value) {
-    this._packetsIn.push(value);
+    this.#packetsIn.push(value);
     this.update();
   }
 
   set packetsOut(value) {
-    this._packetsOut.push(value);
+    this.#packetsOut.push(value);
     this.update();
   }
 
   set bytesIn(value) {
-    this._bytesIn.push(value);
+    this.#bytesIn.push(value);
     this.update();
   }
 
   set bytesOut(value) {
-    this._bytesOut.push(value);
+    this.#bytesOut.push(value);
     this.update();
   }
 
   update = delayed_call(() => this.#doUpdate());
 
   #doUpdate() {
-    const fps = this._fpsAverage.value();
-    // let fpsStyle = fps >= 50 ? 'good' : (fps >= 30 ? 'normal' : 'bad');
-    // let pingStyle = this._ping < 100 ? 'good' : (this._ping < 400 ? 'normal' : 'bad');
-    // this.#label.text = sprintf(
-    //   'FPS: <%2$s>%1$s</%2$s> ping: <%4$s>%3$s</%4$s>', fps, fpsStyle, this._ping, pingStyle
-    // ); // TODO:
-    this._label.text = `FPS: ${fps} ping: ${this._ping}`;
+    const fps = this.#fpsAverage.value();
 
-    // this.#connectionLabel.text = sprintf(
-    //   '%s/%s %s/%s',
-    //   this._packetsIn.value(), this._packetsOut.value(),
-    //   this._bytesIn.value(), this._bytesOut.value()
-    // );
-    const bytesIn = this._bytesIn.value();
-    const bytesOut = this._bytesOut.value();
-    const packetsIn = this._packetsIn.value();
-    const packetsOut = this._packetsOut.value();
-    this._connectionLabel.text = `${packetsIn}/${packetsOut} ${bytesIn}/${bytesOut}`;
-    const width = this._label.width + 16;
-    const height = this._label.height + this._connectionLabel.height;
+    this.#labelFPS.text = fps;
+    this.#labelFPS.style = fps >= 50 ? this.#styleGood : (fps >= 30 ? this.#styleNormal : this.#styleBad);
+    this.#labelPing.text = this.#ping;
+    this.#labelPing.style = this.#ping < 100 ? this.#styleGood : (this.#ping < 400 ? this.#styleNormal : this.#styleBad);
+
+    const bytesIn = this.#bytesIn.value();
+    const bytesOut = this.#bytesOut.value();
+    const packetsIn = this.#packetsIn.value();
+    const packetsOut = this.#packetsOut.value();
+    this.#connectionLabel.text = `${packetsIn}/${packetsOut} ${bytesIn}/${bytesOut}`;
+
+    const width = this.#label.children.reduce(
+      (acc, item) => acc + item.width + this.#label.elementsMargin, 16 - this.#label.elementsMargin
+    );
+    const height = this.#label.height + this.#connectionLabel.height + 8;
     this.resize(width, height);
+
+    this.#label.arrangeChildren();
   }
 }

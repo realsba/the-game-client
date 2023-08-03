@@ -26,17 +26,13 @@ export default class Config {
     lineStyle: { width: 1, color: 0x777777, alpha: 1 },
     fill: [0x777777, 0.5],
     label: {
-      def: { font: '14pt Open Sans', fill: '#BBBBBB', stroke: '#808080', strokeThickness: 2 },
-      good: { font: 'bold 14pt Open Sans', fill: '#BBBBBB', stroke: '#008000', strokeThickness: 2 },
-      normal: { font: 'bold 14pt Open Sans', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
-      bad: { font: 'bold 14pt Open Sans', fill: '#BBBBBB', stroke: '#800000', strokeThickness: 2 }
+      def: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#808080', strokeThickness: 2 },
+      good: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#008000', strokeThickness: 2 },
+      normal: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
+      bad: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#800000', strokeThickness: 2 }
     },
     connectionLabel: {
-      fontFamily: 'Open Sans',
-      fontSize: '12pt',
-      fill: 0xBBBBBB,
-      stroke: 0x808080,
-      strokeThickness: 1,
+      fontFamily: 'Open Sans', fontSize: '12pt', fill: 0xBBBBBB, stroke: 0x808080, strokeThickness: 1,
       align: 'center'
     }
   };
