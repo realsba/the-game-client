@@ -224,7 +224,6 @@ export class Cell extends PIXI.Graphics {
     this.endFill();
   };
 
-  // TODO: use setter
   setScale(scale) {
     this._scale = scale;
     this.position.x = this._position._x * this._scale;

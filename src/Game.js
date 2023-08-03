@@ -50,7 +50,13 @@ export default class Game extends PIXI.Application {
 
     this._room = new Room(this.stage, config);
     this._room.onCreateAvatar = (avatar) => {
-      avatar.onmousedown = (event) => this.#chooseTargetPlayer(event);
+      const origHandler = avatar.onmousedown;
+      avatar.onmousedown = (event) => {
+        if (origHandler) {
+          origHandler(event);
+        }
+        this.#chooseTargetPlayer(event);
+      }
     };
     this._room.leaderboard.onMouseDown = (event) => this.#chooseTargetPlayer(event);
   }
