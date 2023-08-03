@@ -1,5 +1,6 @@
 import chai from 'chai';
-const should = chai.should();
+
+chai.should();
 
 import BinaryStream from '../src/BinaryStream.js';
 

@@ -2,7 +2,7 @@ export default class Player {
   _id = 0;
   _x = 0;
   _y = 0;
-  _mass = 0;
+  #mass = 0;
   _avatars = new Set();
 
   get id() {
@@ -18,7 +18,7 @@ export default class Player {
   }
 
   get mass() {
-    return this._mass;
+    return this.#mass;
   }
 
   addAvatar(avatar) {
@@ -41,17 +41,17 @@ export default class Player {
     if (size > 1) {
       this._x = 0;
       this._y = 0;
-      this._mass = 0;
+      this.#mass = 0;
       this._avatars.forEach(avatar => {
         this._x += avatar._position._x * avatar._mass;
         this._y += avatar._position._y * avatar._mass;
-        this._mass += avatar._mass;
+        this.#mass += avatar._mass;
       });
-      this._x /= this._mass;
-      this._y /= this._mass;
+      this._x /= this.#mass;
+      this._y /= this.#mass;
     } else {
       const avatar = this._avatars.values().next().value;
-      this._mass = avatar._mass;
+      this.#mass = avatar._mass;
       this._x = avatar._position._x;
       this._y = avatar._position._y;
     }

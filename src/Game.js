@@ -336,8 +336,8 @@ export default class Game extends PIXI.Application {
     this._room._viewportBuffer = viewportBuffer;
     this._room._resistanceRatio = resistanceRatio;
     this._room._foodResistanceRatio = foodResistanceRatio;
-    this._room._player._x = 0.5 * width;
-    this._room._player._y = 0.5 * height;
+    //this._room._player._x = 0.5 * width;
+    //this._room._player._y = 0.5 * height;
     this._room.setScreenSize(this._screenWidth, this._screenHeight); // TODO: fix
     this._ready = true;
   }
@@ -476,6 +476,7 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketFinish(stream) {
+    console.log('onPacketFinish') // TODO: remove
     // TODO: implement
     // if (service.onFinish) {
     //   service.onFinish();
@@ -486,6 +487,7 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketPlay(stream) {
+    console.log('onPacketPlay') // TODO: remove
     const playerId = stream.readUInt32();
     const x = stream.readUInt16();
     const y = stream.readUInt16();
