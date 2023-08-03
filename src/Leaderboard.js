@@ -26,9 +26,9 @@ export default class Leaderboard extends Panel {
       label.eventMode = 'static';
       label.y = this.#labels[i].height * i;
       label.visible = false;
-      label.onmousedown = (mouse) => {
+      label.onmousedown = event => {
         if (this.#onMouseDown) {
-          this.#onMouseDown(mouse);
+          this.#onMouseDown(event);
         }
       };
     }

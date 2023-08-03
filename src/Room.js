@@ -300,9 +300,7 @@ export default class Room extends PIXI.Container {
     this.init();
     this.#leaderboard.playerId = playerId;
     this.#playerInfoPanel.maxMass = maxMass;
-    this._player._id = playerId; // TODO: avoid using protected members
-    this._player._x = x;         // TODO: avoid using protected members
-    this._player._y = y;         // TODO: avoid using protected members
+    this._player = new Player(playerId, x, y);
   };
 
   modifyCell(def) {

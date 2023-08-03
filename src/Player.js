@@ -1,20 +1,26 @@
 export default class Player {
-  _id = 0;
-  _x = 0;
-  _y = 0;
+  #id = 0;
+  #x = 0;
+  #y = 0;
   #mass = 0;
   _avatars = new Set();
 
+  constructor(id, x, y) {
+    this.#id = id;
+    this.#x = x;
+    this.#y = y;
+  }
+
   get id() {
-    return this._id;
+    return this.#id;
   }
 
   get x() {
-    return this._x;
+    return this.#x;
   }
 
   get y() {
-    return this._y;
+    return this.#y;
   }
 
   get mass() {
@@ -39,21 +45,21 @@ export default class Player {
       return;
     }
     if (size > 1) {
-      this._x = 0;
-      this._y = 0;
+      this.#x = 0;
+      this.#y = 0;
       this.#mass = 0;
       this._avatars.forEach(avatar => {
-        this._x += avatar._position._x * avatar._mass;
-        this._y += avatar._position._y * avatar._mass;
+        this.#x += avatar._position._x * avatar._mass;
+        this.#y += avatar._position._y * avatar._mass;
         this.#mass += avatar._mass;
       });
-      this._x /= this.#mass;
-      this._y /= this.#mass;
+      this.#x /= this.#mass;
+      this.#y /= this.#mass;
     } else {
       const avatar = this._avatars.values().next().value;
       this.#mass = avatar._mass;
-      this._x = avatar._position._x;
-      this._y = avatar._position._y;
+      this.#x = avatar._position._x;
+      this.#y = avatar._position._y;
     }
   };
 }

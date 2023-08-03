@@ -5,42 +5,56 @@ import Room from './Room.js';
 import { CellDef } from "./Cell.js";
 
 export default class Game extends PIXI.Application {
-  _screenWidth;
-  _screenHeight;
-  _scaleModifier = 100;
+  /** @type {Number} */
+  #screenWidth;
+  /** @type {Number} */
+  #screenHeight;
+  /** @type {Number} */
+  #scaleModifier = 100;
   /** @type {Room} */
-  _room = null;
+  _room = null; // TODO: make private
   /** @type {WebSocket} */
-  _socket = null;
-  _ready = false;
-  _players = {};
-  _mousePosition = {};
-  _mousePositionChanged = false;
+  #socket = null;
+  /** @type {Boolean} */
+  #ready = false;
+  #players = {};
+  /** @type {PIXI.Point} */
+  #mousePosition = {};
+  /** @type {Boolean} */
+  #mousePositionChanged = false;
+  /** @type {Number} */
   #packetsIn = 0;
+  /** @type {Number} */
   #packetsOut = 0;
+  /** @type {Number} */
   #bytesIn = 0;
+  /** @type {Number} */
   #bytesOut = 0;
-  _stopped = false;
+  /** @type {Boolean} */
+  #stopped = false; // TODO: implement and rename
+  /** @type {Boolean} */
   #isSpectateMode = false;
+  /** @type {Number} */
   #lastPingTime;
+  /** @type {Number} */
   #infoPanelLastUpdate = Date.now();
 
-  _dispatcher = {
-    1: (stream) => this.onPacketPong(stream),
-    2: (stream) => this.onPacketGreeting(stream),
-    3: (stream) => this.onPacketRoom(stream),
-    4: (stream) => this.onPacketFrame(stream),
-    5: (stream) => this.onPacketLeaderboard(stream),
-    6: (stream) => this.onPacketPlayer(stream),
-    7: (stream) => this.onPacketPlayerRemove(stream),
-    8: (stream) => this.onPacketPlayerJoin(stream),
-    9: (stream) => this.onPacketPlayerLeave(stream),
-    10: (stream) => this.onPacketPlayerBorn(stream),
-    11: (stream) => this.onPacketPlayerDead(stream),
-    12: (stream) => this.onPacketPlay(stream),
-    13: (stream) => this.onPacketSpectate(stream),
-    14: (stream) => this.onPacketFinish(stream),
-    15: (stream) => this.onPacketChatMessage(stream)
+  #dispatcher = {
+    1: stream => this.onPacketPong(stream),
+    2: stream => this.onPacketGreeting(stream),
+    3: stream => this.onPacketRoom(stream),
+    4: stream => this.onPacketFrame(stream),
+    5: stream => this.onPacketLeaderboard(stream),
+    6: stream => this.onPacketPlayer(stream),
+    7: stream => this.onPacketPlayerRemove(stream),
+    8: stream => this.onPacketPlayerJoin(stream),
+    9: stream => this.onPacketPlayerLeave(stream),
+    10: stream => this.onPacketPlayerBorn(stream),
+    11: stream => this.onPacketPlayerDead(stream),
+    12: stream => this.onPacketPlay(stream),
+    13: stream => this.onPacketSpectate(stream),
+    14: stream => this.onPacketFinish(stream),
+    15: stream => this.onPacketChatMessage(stream)
   };
 
   constructor(options, config) {
@@ -49,16 +63,16 @@ export default class Game extends PIXI.Application {
     this._config = config;
 
     this._room = new Room(this.stage, config);
-    this._room.onCreateAvatar = (avatar) => {
+    this._room.onCreateAvatar = avatar => {
       const origHandler = avatar.onmousedown;
-      avatar.onmousedown = (event) => {
+      avatar.onmousedown = event => {
         if (origHandler) {
           origHandler(event);
         }
         this.#chooseTargetPlayer(event);
       }
     };
-    this._room.leaderboard.onMouseDown = (event) => this.#chooseTargetPlayer(event);
+    this._room.leaderboard.onMouseDown = event => this.#chooseTargetPlayer(event);
   }
 
   #chooseTargetPlayer(event) {
@@ -71,8 +85,8 @@ export default class Game extends PIXI.Application {
   }
 
   setScreenSize(width, height) {
-    this._screenWidth = width;
-    this._screenHeight = height;
+    this.#screenWidth = width;
+    this.#screenHeight = height;
     this._room.setScreenSize(width, height);
   }
 
@@ -80,7 +94,7 @@ export default class Game extends PIXI.Application {
    * @param {ArrayBuffer} buffer
    */
   #send(buffer) {
-    this._socket.send(buffer);
+    this.#socket.send(buffer);
     ++this.#packetsOut;
     this.#bytesOut += buffer.byteLength;
   }
@@ -101,17 +115,17 @@ export default class Game extends PIXI.Application {
       this.#bytesOut = 0;
       this.#infoPanelLastUpdate = now;
     }
-    if (this._ready) {
-      if (this._mousePositionChanged) {
+    if (this.#ready) {
+      if (this.#mousePositionChanged) {
         // TODO: check if it is necessary to send Packet 'Pointer' in SpectateMode
-        const x = this._stopped || this.#isSpectateMode ? 0 : (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale; // TODO: avoid using protected members
-        const y = this._stopped || this.#isSpectateMode ? 0 : (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale; // TODO: avoid using protected members
+        const x = this.#stopped || this.#isSpectateMode ? 0 : (this.#mousePosition.x - 0.5 * this.#screenWidth) / this._room._scale; // TODO: avoid using protected members
+        const y = this.#stopped || this.#isSpectateMode ? 0 : (this.#mousePosition.y - 0.5 * this.#screenHeight) / this._room._scale; // TODO: avoid using protected members
         const stream = new BinaryStream(5);
         stream.writeUInt8(5);
         stream.writeUInt16(x);
         stream.writeUInt16(y);
         this.#send(stream.buffer);
-        this._mousePositionChanged = false;
+        this.#mousePositionChanged = false;
         this._room._pointerX = x; // TODO: avoid using protected members
         this._room._pointerY = y; // TODO: avoid using protected members
       }
@@ -170,13 +184,13 @@ export default class Game extends PIXI.Application {
   // TODO: avoid using protected members from this._room
   #getTargetPoint() {
     return new PIXI.Point(
-      this._room._player.x + (this._mousePosition.x - 0.5 * this._screenWidth) / this._room._scale,
-      this._room._player.y + (this._mousePosition.y - 0.5 * this._screenHeight) / this._room._scale
+      this._room._player.x + (this.#mousePosition.x - 0.5 * this.#screenWidth) / this._room._scale,
+      this._room._player.y + (this.#mousePosition.y - 0.5 * this.#screenHeight) / this._room._scale
     );
   }
 
   actionEject(point) {
-    if (this._ready) {
+    if (this.#ready) {
       const point = this.#getTargetPoint();
       const stream = new BinaryStream(5);
       stream.writeUInt8(6);
@@ -187,7 +201,7 @@ export default class Game extends PIXI.Application {
   }
 
   actionSplit(point) {
-    if (this._ready) {
+    if (this.#ready) {
       const point = this.#getTargetPoint();
       const stream = new BinaryStream(5);
       stream.writeUInt8(7);
@@ -201,7 +215,7 @@ export default class Game extends PIXI.Application {
    * @param {string} text
    */
   chatMessage(text) {
-    if (this._ready) {
+    if (this.#ready) {
       const stream = new BinaryStream(1024);
       stream.writeUInt8(2);
       stream.writeString(text);
@@ -213,9 +227,9 @@ export default class Game extends PIXI.Application {
    * @param {PIXI.Point} point
    */
   setMousePosition(point) {
-    if (!point.equals(this._mousePosition)) {
-      this._mousePosition = point.clone();
-      this._mousePositionChanged = true;
+    if (!point.equals(this.#mousePosition)) {
+      this.#mousePosition = point.clone();
+      this.#mousePositionChanged = true;
     }
   }
 
@@ -223,11 +237,11 @@ export default class Game extends PIXI.Application {
    * @param {string} url
    */
   startConnection(url) {
-    this._socket = new WebSocket(url);
-    this._socket.binaryType = 'arraybuffer';
-    this._socket.onopen = () => {
+    this.#socket = new WebSocket(url);
+    this.#socket.binaryType = 'arraybuffer';
+    this.#socket.onopen = () => {
       const checkReadyState = () => {
-        if (this._socket.readyState === 0) {
+        if (this.#socket.readyState === 0) {
           setTimeout(checkReadyState, 50);
           return;
         }
@@ -236,22 +250,22 @@ export default class Game extends PIXI.Application {
       }
       checkReadyState();
     };
-    this._socket.onclose = () => {
+    this.#socket.onclose = () => {
       // TODO: implement
       // if (service.onConnectionLoss) {
       //   service.onConnectionLoss();
       // }
-      this._socket = null;
-      this._ready = false;
+      this.#socket = null;
+      this.#ready = false;
       this._room.init();
     };
-    this._socket.onmessage = (event) => {
+    this.#socket.onmessage = event => {
       const stream = new BinaryStream(event.data);
       this.#bytesIn += stream.byteLength;
       while (stream.hasNext()) {
         const type = stream.readUInt8();
-        if (this._dispatcher.hasOwnProperty(type)) {
-          this._dispatcher[type](stream);
+        if (this.#dispatcher.hasOwnProperty(type)) {
+          this.#dispatcher[type](stream);
         }
         ++this.#packetsIn;
       }
@@ -259,28 +273,28 @@ export default class Game extends PIXI.Application {
   }
 
   incScale() {
-    if (this._scaleModifier < 200) {
-      this._scaleModifier += 10;
-      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    if (this.#scaleModifier < 200) {
+      this.#scaleModifier += 10;
+      this._room.setScaleRatio(0.01 * this.#scaleModifier);
     }
   }
 
   decScale() {
-    if (this._scaleModifier > 10) {
-      this._scaleModifier -= 10;
-      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    if (this.#scaleModifier > 10) {
+      this.#scaleModifier -= 10;
+      this._room.setScaleRatio(0.01 * this.#scaleModifier);
     }
   }
 
   resetScale() {
-    if (this._scaleModifier !== 100) {
-      this._scaleModifier = 100;
-      this._room.setScaleRatio(0.01 * this._scaleModifier);
+    if (this.#scaleModifier !== 100) {
+      this.#scaleModifier = 100;
+      this._room.setScaleRatio(0.01 * this.#scaleModifier);
     }
   }
 
   ping() {
-    if (this._socket) {
+    if (this.#socket) {
       this.sendPing();
       this.#lastPingTime = Date.now();
     }
@@ -326,7 +340,7 @@ export default class Game extends PIXI.Application {
       const id = stream.readUInt32();
       const name = stream.readString();
       const status = stream.readUInt8();
-      this._players[id] = new PlayerInfo(id, name, status);
+      this.#players[id] = new PlayerInfo(id, name, status);
     }
     // $rootScope['chatHistory'] = []; // TODO: implement
     count = stream.readUInt8();
@@ -349,8 +363,8 @@ export default class Game extends PIXI.Application {
     this._room._foodResistanceRatio = foodResistanceRatio;
     //this._room._player._x = 0.5 * width;
     //this._room._player._y = 0.5 * height;
-    this._room.setScreenSize(this._screenWidth, this._screenHeight); // TODO: fix
-    this._ready = true;
+    this._room.setScreenSize(this.#screenWidth, this.#screenHeight); // TODO: fix
+    this.#ready = true;
   }
 
   /**
@@ -374,7 +388,7 @@ export default class Game extends PIXI.Application {
       def.color = stream.readUInt8();
       if (def.isAvatar()) {
         def.playerId = stream.readUInt32();
-        def.name = this._players[def.playerId].name;
+        def.name = this.#players[def.playerId].name;
         // def._protection = stream.readUInt32();
       }
       if (def.isMoving()) {
@@ -404,7 +418,7 @@ export default class Game extends PIXI.Application {
     if (arrowPlayerId) {
       this._room._arrowPlayerX = stream.readFloat();
       this._room._arrowPlayerY = stream.readFloat();
-      this._room.directionPanel.playerInfo = this._players[arrowPlayerId];
+      this._room.directionPanel.playerInfo = this.#players[arrowPlayerId];
       this._room.directionPanel.visible = true;
     } else {
       this._room.directionPanel.playerInfo = null;
@@ -421,7 +435,7 @@ export default class Game extends PIXI.Application {
     for (; count > 0; --count) {
       const id = stream.readUInt32();
       const mass = stream.readUInt32();
-      items.push({'id': id, 'name': this._players[id].name, 'mass': mass});
+      items.push({'id': id, 'name': this.#players[id].name, 'mass': mass});
     }
     this._room.leaderboard.items = items;
   }
@@ -432,10 +446,10 @@ export default class Game extends PIXI.Application {
   onPacketPlayer(stream) {
     const playerId = stream.readUInt32();
     const name = stream.readString();
-    if (this._players.hasOwnProperty(playerId)) {
-      this._players[playerId].name = name;
+    if (this.#players.hasOwnProperty(playerId)) {
+      this.#players[playerId].name = name;
     } else {
-      this._players[playerId] = new PlayerInfo(playerId, name, 3);
+      this.#players[playerId] = new PlayerInfo(playerId, name, 3);
     }
   }
 
@@ -444,7 +458,7 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerRemove(stream) {
     const playerId = stream.readUInt32();
-    delete this._players[playerId];
+    delete this.#players[playerId];
   }
 
   /**
@@ -452,7 +466,7 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerJoin(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status |= 1; // TODO: avoid magic numbers
+    this.#players[playerId].status |= 1; // TODO: avoid magic numbers
     this._room.directionPanel.update();
   }
 
@@ -461,7 +475,7 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerLeave(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status &= 0xFE; // TODO: avoid magic numbers
+    this.#players[playerId].status &= 0xFE; // TODO: avoid magic numbers
     this._room.directionPanel.update();
   }
 
@@ -470,7 +484,7 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerBorn(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status |= 2; // TODO: avoid magic numbers
+    this.#players[playerId].status |= 2; // TODO: avoid magic numbers
     this._room.directionPanel.update();
   }
 
@@ -479,7 +493,7 @@ export default class Game extends PIXI.Application {
    */
   onPacketPlayerDead(stream) {
     const playerId = stream.readUInt32();
-    this._players[playerId].status &= 0xFD; // TODO: avoid magic numbers
+    this.#players[playerId].status &= 0xFD; // TODO: avoid magic numbers
     this._room.directionPanel.update();
   }
 
@@ -498,12 +512,11 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketPlay(stream) {
-    console.log('onPacketPlay') // TODO: remove
     const playerId = stream.readUInt32();
     const x = stream.readUInt16();
     const y = stream.readUInt16();
     const maxMass = stream.readUInt32();
-    this._room.play(playerId, x, y, maxMass); // TODO: fix
+    this._room.play(playerId, x, y, maxMass);
     this.#isSpectateMode = false;
     // TODO: implement
     // if (service.onPacketPlayer) {
@@ -535,7 +548,7 @@ export default class Game extends PIXI.Application {
     const text = stream.readString();
     const msg = {
       'authorId': authorId,
-      'author': this._players.hasOwnProperty(authorId) ? this._players[authorId].name : '',
+      'author': this.#players.hasOwnProperty(authorId) ? this.#players[authorId].name : '',
       'text': text
     };
     // TODO: implement
@@ -547,8 +560,8 @@ export default class Game extends PIXI.Application {
   getPlayers() {
     let arr = {};
     // TODO: simplify iterating
-    for (let id in this._players) {
-      const info = this._players[id];
+    for (let id in this.#players) {
+      const info = this.#players[id];
       arr[id] = info.name;
     }
     return arr;

@@ -18,7 +18,7 @@ export class MovingAverage {
     this.#measurements.push(value);
     if (this.#measurements.length === this.#size) {
       this.#value = this.#measurements.reduce((acc, val) => acc + val, 0) / this.#size;
-      this.push = (value) => {
+      this.push = value => {
         this.#measurements.push(value);
         this.#value += (-this.#measurements.shift() + value) / this.#size;
       };

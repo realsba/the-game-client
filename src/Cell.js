@@ -175,13 +175,12 @@ export class Cell extends PIXI.Graphics {
     }
 
     this.eventMode = 'static';
-    this.onmousedown = (event) => {
+    this.onmousedown = event => {
       if (event.ctrlKey) {
-        if (event.altKey) {
-          console.log(event.target);
-        } else {
-          console.log(event.target.toString());
-        }
+        console.log(event.target.toString());
+      }
+      if (event.altKey) {
+        console.log(event.target);
       }
       event.stopPropagation();
     }
