@@ -326,13 +326,13 @@ export class Avatar extends Cell {
     this._text = new PIXI.Text(
       this._name,
       {
-        'fontFamily': 'Arial',
-        'fontSize': fontSize + 'pt',
-        'fontWeight': 'bold',
-        'fill': 0xFFFFFF,
-        'stroke': blur(def.color, 80),
-        'strokeThickness': 2,
-        'align': 'center'
+        fontFamily: 'Arial',
+        fontSize: fontSize + 'pt',
+        fontWeight: 'bold',
+        fill: 0xFFFFFF,
+        stroke: blur(def.color, 80),
+        strokeThickness: 2,
+        align: 'center'
       }
     );
     fontSize = Math.max((this._textMassSize * scale) >> 0, 8);
@@ -351,20 +351,6 @@ export class Avatar extends Cell {
     this.addChild(this._text);
     this.addChild(this._textMass);
     this.updateTextPosition();
-
-    // TODO: implement in class Game
-    this.on('mousedown', function (mouse) {
-      const event = mouse.data.originalEvent;
-      if (event.ctrlKey && !event.altKey) {
-        const avatar = mouse.target.object;
-        // TODO: implement
-        //const binary = new jBinary(5);
-        //binary.writeUInt8(10);
-        //binary.writeUInt32(avatar._playerId);
-        //avatar._room._socket.send(binary.view.buffer);
-      }
-      mouse.stopPropagation();
-    });
   }
 
   setScale(scale) {

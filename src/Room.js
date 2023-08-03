@@ -57,6 +57,8 @@ export default class Room extends PIXI.Container {
   _pointerX;
   _pointerY;
 
+  #onCreateAvatar;
+
   constructor(view, config) {
     super();
 
@@ -92,6 +94,10 @@ export default class Room extends PIXI.Container {
 
   get directionPanel() {
     return this.#directionPanel;
+  }
+
+  set onCreateAvatar(value) {
+    this.#onCreateAvatar = value;
   }
 
   init() {
@@ -311,6 +317,9 @@ export default class Room extends PIXI.Container {
         cell = new Mass(this, def, this._scale);
       } else if (def.isAvatar()) {
         cell = new Avatar(this, def, this._scale);
+        if (this.#onCreateAvatar) {
+          this.#onCreateAvatar(cell);
+        }
       } else if (def.isVirus()) {
         cell = new Virus(this, def, this._scale);
       } else if (def.isMother()) {

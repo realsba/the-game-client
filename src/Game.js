@@ -49,14 +49,19 @@ export default class Game extends PIXI.Application {
     this._config = config;
 
     this._room = new Room(this.stage, config);
-    this._room.leaderboard.onMouseDown = (event) => {
-      if (this.#isSpectateMode) {
-        this.actionSpectate(event.target.playerId);
-      } else {
-        this.actionWatch(event.target.playerId);
-      }
-      event.stopPropagation();
+    this._room.onCreateAvatar = (avatar) => {
+      avatar.onmousedown = (event) => this.#chooseTargetPlayer(event);
     };
+    this._room.leaderboard.onMouseDown = (event) => this.#chooseTargetPlayer(event);
+  }
+
+  #chooseTargetPlayer(event) {
+    if (this.#isSpectateMode) {
+      this.actionSpectate(event.target.playerId);
+    } else {
+      this.actionWatch(event.target.playerId);
+    }
+    event.stopPropagation();
   }
 
   setScreenSize(width, height) {

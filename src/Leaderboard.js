@@ -21,7 +21,7 @@ export default class Leaderboard extends Panel {
     this.#title.y = 4;
 
     for (let i = 0; i < Leaderboard.MAX_ITEMS; ++i) {
-      let label = this.#list.addChild(new Text('', this._config.list.def));
+      const label = this.#list.addChild(new Text('', this._config.list.def));
       this.#labels[i] = label;
       label.eventMode = 'static';
       label.y = this.#labels[i].height * i;
