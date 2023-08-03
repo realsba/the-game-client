@@ -501,7 +501,6 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketFinish(stream) {
-    console.log('onPacketFinish') // TODO: remove
     // TODO: implement
     // if (service.onFinish) {
     //   service.onFinish();

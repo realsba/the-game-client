@@ -203,7 +203,7 @@ export class Cell extends PIXI.Graphics {
   }
 
   toString() {
-    return `${this.constructor.name}: id=${this._id} mass=${this._mass} radius=${this._radius}`+
+    return `${this.constructor.name}: id=${this._id} mass=${this._mass} radius=${this._radius}` +
       ` (${this._position._x >> 0}:${this._position._y >> 0})`;
   };
 
@@ -308,8 +308,11 @@ export class Mass extends Cell {
 }
 
 export class Avatar extends Cell {
-  _textSize = 24;
-  _textMassSize = 8;
+  static TEXT_SIZE = 24;
+  static TEXT_MASS_SIZE = 8;
+
+  #text;
+  #textMass;
 
   constructor(room, def, scale) {
     super(room, def, scale);
@@ -320,12 +323,11 @@ export class Avatar extends Cell {
 
     this._massAnimator = new Animator();
 
-    let fontSize = Math.max((this._textSize * scale) >> 0, 8);
-    this._text = new PIXI.Text(
+    this.#text = new PIXI.Text(
       this._name,
       {
         fontFamily: 'Arial',
-        fontSize: fontSize + 'pt',
+        fontSize: this.#getFontSize(Avatar.TEXT_SIZE) + 'pt',
         fontWeight: 'bold',
         fill: 0xFFFFFF,
         stroke: blur(def.color, 80),
@@ -333,12 +335,11 @@ export class Avatar extends Cell {
         align: 'center'
       }
     );
-    fontSize = Math.max((this._textMassSize * scale) >> 0, 8);
-    this._textMass = new PIXI.Text(
+    this.#textMass = new PIXI.Text(
       this._viewMass,
       {
         'fontFamily': 'Arial',
-        'fontSize': fontSize + 'pt',
+        'fontSize': this.#getFontSize(Avatar.TEXT_MASS_SIZE) + 'pt',
         'fontWeight': 'bold',
         'fill': 0xCCCCCC,
         'stroke': blur(def.color, 80),
@@ -346,27 +347,27 @@ export class Avatar extends Cell {
         'align': 'center'
       }
     );
-    this.addChild(this._text);
-    this.addChild(this._textMass);
+    this.addChild(this.#text);
+    this.addChild(this.#textMass);
     this.updateTextPosition();
+  }
+
+  #getFontSize(baseSize) {
+    return Math.max((baseSize * this._scale) >> 0, 8);
   }
 
   setScale(scale) {
     super.setScale(scale);
-    const textStyle = this._text.style;
-    textStyle['font'] = 'bold ' + (this._textSize * scale) + 'px Arial';
-    this._text['style'] = textStyle;
-    const textMassStyle = this._textMass.style;
-    textMassStyle['font'] = 'bold ' + (this._textMassSize * scale) + 'px Arial';
-    this._textMass['style'] = textMassStyle;
+    this.#text.style.fontSize = this.#getFontSize(Avatar.TEXT_SIZE) + 'pt';
+    this.#textMass.style.fontSize = this.#getFontSize(Avatar.TEXT_MASS_SIZE) + 'pt';
     this.updateTextPosition();
   };
 
   updateTextPosition() {
-    this._text.position.x = -this._text.width / 2;
-    this._text.position.y = -this._text.height / 2;
-    this._textMass.position.x = -this._textMass.width / 2;
-    this._textMass.position.y = this._text.position.y + this._text.height - 0.25 * this._textMass.height;
+    this.#text.position.x = -this.#text.width / 2;
+    this.#text.position.y = -this.#text.height / 2;
+    this.#textMass.position.x = -this.#textMass.width / 2;
+    this.#textMass.position.y = this.#text.position.y + this.#text.height - 0.25 * this.#textMass.height;
   };
 
   get mass() {
@@ -393,7 +394,7 @@ export class Avatar extends Cell {
     const res = this._massAnimator.animate(dt);
     if (res !== false) {
       this._viewMass = res;
-      this._textMass.text = ~~res;
+      this.#textMass.text = ~~res;
       this.updateTextPosition();
     }
   };
@@ -410,11 +411,11 @@ export class Virus extends Cell {
 
   draw() {
     let path = [];
-    let n = 16;
+    const n = 16;
     let alpha = 0;
-    let angle = Math.PI / n;
-    let r1 = this._viewRadius * this._scale;
-    let r2 = 1.075 * this._viewRadius * this._scale;
+    const angle = Math.PI / n;
+    const r1 = this._viewRadius * this._scale;
+    const r2 = 1.075 * this._viewRadius * this._scale;
     for (let i = 0; i <= n; ++i) {
       path.push(r1 * Math.sin(alpha), r1 * Math.cos(alpha));
       alpha += angle;

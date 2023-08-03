@@ -188,9 +188,12 @@ export default class Room extends PIXI.Container {
     cellDefs.forEach(def => this.modifyCell(def));
     removed.forEach(id => this.removeCell(id));
     selfAvatarsInfo.forEach(item => {
+      /** @type {Avatar} */
       const avatar = this.#cells.get(item.id);
-      avatar._maxSpeed = item.maxSpeed; // TODO: avoid using protected members
-      avatar._protection = item.protection; // TODO: avoid using protected members
+      if (avatar) {
+        avatar._maxSpeed = item.maxSpeed; // TODO: avoid using protected members
+        avatar._protection = item.protection; // TODO: avoid using protected members
+      }
     });
   };
 
@@ -304,7 +307,7 @@ export default class Room extends PIXI.Container {
   };
 
   modifyCell(def) {
-    /** @type {Cell} cell */
+    /** @type {Cell} */
     let cell = this.#cells.get(def.id);
     if (cell) {
       cell.modify(def);
