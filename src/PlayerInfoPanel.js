@@ -1,51 +1,76 @@
 import Panel from './ui/Panel.js';
-import { Text } from 'pixi.js';
+import Label from "./ui/Label.js";
 import { delayed_call } from './utils.js';
+import * as PIXI from "pixi.js";
 
 export default class PlayerInfoPanel extends Panel {
-  _posX = 0;
-  _posY = 0;
-  _mass = 0;
-  _maxMass = 0;
+  #posX = 0;
+  #posY = 0;
+  #mass = 0;
+  #maxMass = 0;
 
-  _label = this.addChild(new Text('...'));
+  #label;
+  #textPosition;
+  #textMass;
+  #textMaxMass;
+
+  #styleLower;
+  #styleBest;
 
   constructor(view, config) {
     super(view, config);
 
-    this._label.style = this._config.label;
-    this._label.position.x = 8;
+    this.#styleLower = new PIXI.TextStyle(this._config.label.lower);
+    this.#styleBest = new PIXI.TextStyle(this._config.label.best);
+
+    this.#textPosition = new PIXI.Text('', this._config.label.property);
+    this.#textMass = new PIXI.Text('');
+    this.#textMaxMass = new PIXI.Text('', this._config.label.maxMass);
+
+    this.#label = new Label({
+      children: [
+        this.#textPosition,
+        new PIXI.Text('mass:', this._config.label),
+        this.#textMass,
+        new PIXI.Text('ping:', this._config.label),
+        this.#textMaxMass
+      ]
+    });
+    this.#label.x = 4;
+    this.#label.elementsMargin = 4;
+    this.addChild(this.#label);
 
     this.#doUpdate();
+    this.#doUpdate(); // required for initial Label resizing
   }
 
   set posX(value) {
-    if (this._posX !== value) {
-      this._posX = value;
+    if (this.#posX !== value) {
+      this.#posX = value;
       this.update();
     }
   }
 
   set posY(value) {
-    if (this._posY !== value) {
-      this._posY = value;
+    if (this.#posY !== value) {
+      this.#posY = value;
       this.update();
     }
   }
 
   set mass(value) {
-    if (this._mass !== value) {
-      this._mass = value;
-      if (this._maxMass < value) {
-        this._maxMass = value;
+    if (this.#mass !== value) {
+      this.#mass = value;
+      if (this.#maxMass < value) {
+        this.#maxMass = value;
       }
       this.update();
     }
   }
 
   set maxMass(value) {
-    if (this._maxMass !== value) {
-      this._maxMass = value;
+    if (this.#maxMass !== value) {
+      this.#maxMass = value;
       this.update();
     }
   }
@@ -53,13 +78,15 @@ export default class PlayerInfoPanel extends Panel {
   update = delayed_call(() => this.#doUpdate());
 
   #doUpdate() {
-    // TODO: use multi style text
-    // let style = mass < maxMass ? 'lower' : 'best';
-    // let fmt = posX + ';' + posY;
-    // fmt += ' <property>mass:</property> <%1$s>' + mass + '</%1$s>';
-    // fmt += ' <property>max:</property> <maxMass>' + maxMass + '</maxMass>';
-    // label.text = sprintf(fmt, style);
-    this._label.text = `${this._posX}:${this._posY} mass: ${this._mass} max: ${this._maxMass}`;
-    this.resize(this._label.width + 16, this._label.height);
+    this.#textMass.style = this.#mass < this.#maxMass ? this.#styleLower : this.#styleBest;
+
+    this.#textPosition.text = `${this.#posX}:${this.#posY}`;
+    this.#textMass.text = this.#mass;
+    this.#textMaxMass.text = this.#maxMass;
+
+    const width = 8 + this.#label.getChildrenWidth();
+    this.resize(width, this.#label.height);
+
+    this.#label.arrangeChildren();
   }
 }

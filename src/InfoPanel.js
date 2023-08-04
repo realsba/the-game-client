@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { List } from '@pixi/ui';
 import Panel from './ui/Panel.js';
 import Label from "./ui/Label.js";
 import { delayed_call } from './utils.js';

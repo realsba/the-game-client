@@ -40,11 +40,11 @@ export default class Config {
     lineStyle: { width: 1, color: 0x777777, alpha: 1 },
     fill: [0x777777, 0.5],
     label: {
-      def: { font: 'bold 18pt Arial', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
-      property: { font: 'bold 18pt Arial', fill: '#777777', stroke: '#000000', strokeThickness: 2 },
-      lower: { font: 'bold 18pt Arial', fill: '#BBBBBB', stroke: '#880000', strokeThickness: 2 },
-      best: { font: 'bold 18pt Arial', fill: '#BBBBBB', stroke: '#008800', strokeThickness: 2 },
-      maxMass: { font: 'bold 18pt Arial', fill: '#BBBBBB', stroke: '#000088', strokeThickness: 2 }
+      def: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
+      property: { fontFamily: 'Arial', fontSize: '18pt', fill: '#777777', stroke: '#000000', strokeThickness: 2 },
+      lower: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#880000', strokeThickness: 2 },
+      best: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#008800', strokeThickness: 2 },
+      maxMass: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#000088', strokeThickness: 2 }
     }
   };
   directionPanel = {
