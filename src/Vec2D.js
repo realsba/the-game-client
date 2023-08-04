@@ -1,26 +1,31 @@
 export default class Vec2D {
-  _x = 0;
-  _y = 0;
+  #x = 0;
+  #y = 0;
 
   constructor(x, y) {
-    this._x = x || 0;
-    this._y = y || 0;
+    this.#x = x || 0;
+    this.#y = y || 0;
   }
 
   get x() {
-    return this._x;
+    return this.#x;
   }
 
   get y() {
-    return this._y;
+    return this.#y;
+  }
+
+  set(x, y) {
+    this.#x = x;
+    this.#y = y;
   }
 
   direction () {
     let direction = new Vec2D();
     let l = this.length();
     if (l > 0) {
-      direction._x = this._x / l;
-      direction._y = this._y / l;
+      direction.#x = this.#x / l;
+      direction.#y = this.#y / l;
     }
     return direction;
   };
@@ -30,47 +35,47 @@ export default class Vec2D {
   };
 
   squareLength() {
-    return this._x * this._x + this._y * this._y;
+    return this.#x * this.#x + this.#y * this.#y;
   };
 
   normalize() {
     let l = this.length();
     if (l > 0) {
-      this._x /= l;
-      this._y /= l;
+      this.#x /= l;
+      this.#y /= l;
     }
   };
 
   reset() {
-    this._x = 0;
-    this._y = 0;
+    this.#x = 0;
+    this.#y = 0;
   };
 
   isZero() {
-    return this._x === 0 && this._y === 0;
+    return this.#x === 0 && this.#y === 0;
   };
 
   assign(other) {
-    this._x = other._x;
-    this._y = other._y;
+    this.#x = other.x;
+    this.#y = other.y;
   };
 
   scalarProduct(k) {
-    return new Vec2D(this._x * k, this._y * k);
+    return new Vec2D(this.#x * k, this.#y * k);
   };
 
   scalarDivision(k) {
-    return new Vec2D(this._x / k, this._y / k);
+    return new Vec2D(this.#x / k, this.#y / k);
   };
 
   assignmentSum(other) {
-    this._x += other._x;
-    this._y += other._y;
+    this.#x += other.x;
+    this.#y += other.y;
   };
 
   assignmentDifference(other) {
-    this._x -= other._x;
-    this._y -= other._y;
+    this.#x -= other.x;
+    this.#y -= other.y;
   };
 }
 

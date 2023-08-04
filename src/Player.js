@@ -49,8 +49,8 @@ export default class Player {
       this.#y = 0;
       this.#mass = 0;
       this._avatars.forEach(avatar => {
-        this.#x += avatar._position._x * avatar._mass;
-        this.#y += avatar._position._y * avatar._mass;
+        this.#x += avatar._position.x * avatar._mass;
+        this.#y += avatar._position.y * avatar._mass;
         this.#mass += avatar._mass;
       });
       this.#x /= this.#mass;
@@ -58,8 +58,8 @@ export default class Player {
     } else {
       const avatar = this._avatars.values().next().value;
       this.#mass = avatar._mass;
-      this.#x = avatar._position._x;
-      this.#y = avatar._position._y;
+      this.#x = avatar._position.x;
+      this.#y = avatar._position.y;
     }
   };
 }

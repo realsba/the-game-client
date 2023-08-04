@@ -214,13 +214,13 @@ export default class Room extends PIXI.Container {
       if (avatar._protection > this.#tick) {
         return;
       }
-      let velocity = new Vec2D((this._player.x + this._pointerX - avatar._position._x), (this._player.y + this._pointerY - avatar._position._y));
+      let velocity = new Vec2D((this._player.x + this._pointerX - avatar._position.x), (this._player.y + this._pointerY - avatar._position.y));
       const dist = velocity.length();
       const k = dist < avatar._radius ? dist / avatar._radius : 1;
       velocity = velocity.direction().scalarProduct(k * avatar._maxSpeed);
       const force = new Vec2D(
-        (velocity._x - avatar._velocity._x) * avatar._mass * playerForceRatio,
-        (velocity._y - avatar._velocity._y) * avatar._mass * playerForceRatio
+        (velocity.x - avatar._velocity.x) * avatar._mass * playerForceRatio,
+        (velocity.y - avatar._velocity.y) * avatar._mass * playerForceRatio
       );
       avatar._force.assignmentSum(force);
     });

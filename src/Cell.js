@@ -61,7 +61,7 @@ class PositionSmoother {
   }
 
   init(x, y, time) {
-    const step = new Vec2D((x - this._current._x) / time, (y - this._current._y) / time);
+    const step = new Vec2D((x - this._current.x) / time, (y - this._current.y) / time);
     if (step.squareLength() < 5 * 5) {
       return;
     }
@@ -166,8 +166,8 @@ export class Cell extends PIXI.Graphics {
     this._positionSmoother = new PositionSmoother(this._position);
 
     const position = this._position.scalarProduct(this._scale);
-    this.position.x = position._x;
-    this.position.y = position._y;
+    this.position.x = position.x;
+    this.position.y = position.y;
 
     if (def.isNew()) {
       this.alpha = 0;
@@ -204,12 +204,11 @@ export class Cell extends PIXI.Graphics {
 
   toString() {
     return `${this.constructor.name}: id=${this._id} mass=${this._mass} radius=${this._radius}` +
-      ` (${this._position._x >> 0}:${this._position._y >> 0})`;
+      ` (${this._position.x >> 0}:${this._position.y >> 0})`;
   };
 
   modify(def) {
-    this._velocity._x = def.vx;
-    this._velocity._y = def.vy;
+    this._velocity.set(def.vx, def.vy);
     this.radius = def.radius;
     this.mass = def.mass;
     this._positionSmoother.init(def.x, def.y, 0.25);
@@ -225,8 +224,8 @@ export class Cell extends PIXI.Graphics {
 
   setScale(scale) {
     this._scale = scale;
-    this.position.x = this._position._x * this._scale;
-    this.position.y = this._position._y * this._scale;
+    this.position.x = this._position.x * this._scale;
+    this.position.y = this._position.y * this._scale;
     this.draw();
   };
 
@@ -252,8 +251,8 @@ export class Cell extends PIXI.Graphics {
     this._velocity.assignmentSum(acceleration.scalarProduct(dt));
     this._position.assignmentSum(this._velocity.scalarProduct(dt));
     this._positionSmoother.smooth(dt);
-    this.position.x = this._position._x * this._scale;
-    this.position.y = this._position._y * this._scale;
+    this.position.x = this._position.x * this._scale;
+    this.position.y = this._position.y * this._scale;
     this._force.reset();
   };
 
