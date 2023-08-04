@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { List } from '@pixi/ui';
 import Panel from './ui/Panel.js';
+import Label from "./ui/Label.js";
 import { delayed_call } from './utils.js';
 
 export class MovingAverage {
@@ -59,7 +60,8 @@ export default class InfoPanel extends Panel {
 
     this.#labelFPS = new PIXI.Text('');
     this.#labelPing = new PIXI.Text('');
-    this.#label = new List({
+
+    this.#label = new Label({
       children: [
         new PIXI.Text('FPS:', this.#styleDefault),
         this.#labelFPS,
@@ -67,11 +69,11 @@ export default class InfoPanel extends Panel {
         this.#labelPing
       ]
     });
-    this.#label.x = 8;
+    this.#label.x = 4;
     this.#label.elementsMargin = 4;
     this.addChild(this.#label);
 
-    this.#connectionLabel.x = 8;
+    this.#connectionLabel.x = 4;
     this.#connectionLabel.y = this.#label.y + this.#label.height;
     this.#connectionLabel.style = this._config.connectionLabel;
 
@@ -126,10 +128,8 @@ export default class InfoPanel extends Panel {
     const packetsOut = this.#packetsOut.value();
     this.#connectionLabel.text = `${packetsIn}/${packetsOut} ${bytesIn}/${bytesOut}`;
 
-    const width = this.#label.children.reduce(
-      (acc, item) => acc + item.width + this.#label.elementsMargin, 16 - this.#label.elementsMargin
-    );
-    const height = this.#label.height + this.#connectionLabel.height + 8;
+    const width = 8 + Math.max(this.#label.getChildrenWidth(), this.#connectionLabel.width);
+    const height = this.#label.height + this.#connectionLabel.height + 4;
     this.resize(width, height);
 
     this.#label.arrangeChildren();
