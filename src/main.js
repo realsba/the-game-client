@@ -74,4 +74,7 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
+window.play = (name, color) => game.actionPlay(name, color);
+window.help = () => console.log('To start the game, run play(name, color) in the console');
+
 resizeHandler();

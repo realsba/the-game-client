@@ -19,7 +19,7 @@ export default class Game extends PIXI.Application {
   #ready = false;
   #players = {};
   /** @type {PIXI.Point} */
-  #mousePosition = {};
+  #mousePosition = new PIXI.Point();
   /** @type {Boolean} */
   #mousePositionChanged = false;
   /** @type {Number} */
@@ -31,7 +31,7 @@ export default class Game extends PIXI.Application {
   /** @type {Number} */
   #bytesOut = 0;
   /** @type {Boolean} */
-  #stopped = false; // TODO: implement and rename
+  #stopped = false;
   /** @type {Boolean} */
   #isSpectateMode = false;
   /** @type {Number} */
@@ -73,6 +73,26 @@ export default class Game extends PIXI.Application {
       }
     };
     this._room.leaderboard.onMouseDown = event => this.#chooseTargetPlayer(event);
+
+    window.addEventListener('keydown', (event) => {
+      if (event.repeat) {
+        return;
+      }
+      const code = event.code;
+      if (code === 'ControlLeft' || code === 'AltLeft') {
+        this.sendPacketPointer(0, 0);
+        this.#stopped = true;
+        this._room._pointerX = 0; // TODO: avoid using protected members
+        this._room._pointerY = 0; // TODO: avoid using protected members
+      }
+    });
+    window.addEventListener('keyup', (event) => {
+      const code = event.code;
+      if (code === 'ControlLeft' || code === 'AltLeft') {
+        this.#stopped = false;
+        this.#mousePositionChanged = true;
+      }
+    });
   }
 
   #chooseTargetPlayer(event) {
@@ -116,18 +136,16 @@ export default class Game extends PIXI.Application {
       this.#infoPanelLastUpdate = now;
     }
     if (this.#ready) {
-      if (this.#mousePositionChanged) {
-        // TODO: check if it is necessary to send Packet 'Pointer' in SpectateMode
-        const x = this.#stopped || this.#isSpectateMode ? 0 : (this.#mousePosition.x - 0.5 * this.#screenWidth) / this._room._scale; // TODO: avoid using protected members
-        const y = this.#stopped || this.#isSpectateMode ? 0 : (this.#mousePosition.y - 0.5 * this.#screenHeight) / this._room._scale; // TODO: avoid using protected members
-        const stream = new BinaryStream(5);
-        stream.writeUInt8(5);
-        stream.writeUInt16(x);
-        stream.writeUInt16(y);
-        this.#send(stream.buffer);
-        this.#mousePositionChanged = false;
-        this._room._pointerX = x; // TODO: avoid using protected members
-        this._room._pointerY = y; // TODO: avoid using protected members
+      if (!this.#stopped && !this.#isSpectateMode) {
+        if (this.#mousePositionChanged) {
+          const x = (this.#mousePosition.x - 0.5 * this.#screenWidth) / this._room._scale; // TODO: avoid using protected members
+          const y = (this.#mousePosition.y - 0.5 * this.#screenHeight) / this._room._scale; // TODO: avoid using protected members
+          this.sendPacketPointer(x, y);
+          // TODO: revise
+          this._room._pointerX = x; // TODO: avoid using protected members
+          this._room._pointerY = y; // TODO: avoid using protected members
+          this.#mousePositionChanged = false;
+        }
       }
       this._room.update();
     }
@@ -158,6 +176,14 @@ export default class Game extends PIXI.Application {
     stream.writeUInt8(4);
     stream.writeString(name);
     stream.writeUInt8(color);
+    this.#send(stream.buffer);
+  }
+
+  sendPacketPointer(x, y) {
+    const stream = new BinaryStream(5);
+    stream.writeUInt8(5);
+    stream.writeUInt16(x);
+    stream.writeUInt16(y);
     this.#send(stream.buffer);
   }
 
@@ -228,7 +254,7 @@ export default class Game extends PIXI.Application {
    */
   setMousePosition(point) {
     if (!point.equals(this.#mousePosition)) {
-      this.#mousePosition = point.clone();
+      this.#mousePosition.set(point.x, point.y);
       this.#mousePositionChanged = true;
     }
   }
