@@ -1,7 +1,7 @@
 import { Graphics, Rectangle } from 'pixi.js';
 
 export default class Control extends Graphics {
-  _onResize = null;
+  #onResize = null;
   _box = new Rectangle();
 
   constructor(view, config) {
@@ -15,7 +15,7 @@ export default class Control extends Graphics {
   }
 
   set onResize(value) {
-    this._onResize = value;
+    this.#onResize = value;
   }
 
   resize(width, height) {
@@ -25,8 +25,8 @@ export default class Control extends Graphics {
     this._box.width = width;
     this._box.height = height;
     this.draw();
-    if (this._onResize) {
-      this._onResize();
+    if (this.#onResize) {
+      this.#onResize();
     }
     return true;
   }

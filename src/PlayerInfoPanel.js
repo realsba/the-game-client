@@ -30,9 +30,9 @@ export default class PlayerInfoPanel extends Panel {
     this.#label = new Label({
       children: [
         this.#textPosition,
-        new PIXI.Text('mass:', this._config.label),
+        new PIXI.Text('mass:', this._config.label.def),
         this.#textMass,
-        new PIXI.Text('ping:', this._config.label),
+        new PIXI.Text('max:', this._config.label.def),
         this.#textMaxMass
       ]
     });
@@ -88,5 +88,7 @@ export default class PlayerInfoPanel extends Panel {
     this.resize(width, this.#label.height);
 
     this.#label.arrangeChildren();
+    this.#label.children[1].y = this.#label.height - this.#label.children[1].height - 2;
+    this.#label.children[3].y = this.#label.height - this.#label.children[3].height - 2;
   }
 }
