@@ -340,7 +340,7 @@ export class Avatar extends Cell {
         'fontFamily': 'Arial',
         'fontSize': this.#getFontSize(Avatar.TEXT_MASS_SIZE) + 'pt',
         'fontWeight': 'bold',
-        'fill': 0xCCCCCC,
+        'fill': 0xFFFFFF,
         'stroke': blur(def.color, 80),
         'strokeThickness': 2,
         'align': 'center'

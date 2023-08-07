@@ -277,6 +277,8 @@ export default class Game extends PIXI.Application {
       checkReadyState();
     };
     this.#socket.onclose = () => {
+      console.log('ConnectionLoss') // TODO: remove
+
       // TODO: implement
       // if (service.onConnectionLoss) {
       //   service.onConnectionLoss();

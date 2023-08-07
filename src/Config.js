@@ -10,16 +10,17 @@ export default class Config {
     title: {
       fontFamily: 'Junegull',
       fontSize: '16pt',
+      fontWeight: 'bold',
       fill: [0x505050, 0xA0A0A0],
       fillGradientType: TEXT_GRADIENT.LINEAR_VERTICAL,
       stroke: 0x303030,
-      strokeThickness: 2,
-      align: 'center'
+      strokeThickness: 2
     },
     list: {
-      def: { fontFamily: 'Arial', fontSize: '16pt', fill: '#999999', stroke: '#555555', strokeThickness: 1 },
-      self: { fontFamily: 'Arial', fontSize: '16pt', fill: '#BB8080', stroke: '#A04040', strokeThickness: 1 },
-      mass: { font: 'italic 12pt Arial', fill: '#888888', stroke: '#555555', strokeThickness: 1, valign: 'bottom'}
+      number: { fontFamily: 'Arial', fontSize: '12pt', fill: '#777777', stroke: '#000000', strokeThickness: 1 },
+      def: { fontFamily: 'Arial', fontSize: '16pt', fontWeight: 'bold', fill: '#999999', stroke: '#555555', strokeThickness: 1 },
+      self: { fontFamily: 'Arial', fontSize: '16pt', fontWeight: 'bold', fill: '#BB8080', stroke: '#A04040', strokeThickness: 1 },
+      mass: { fontFamily: 'Arial', fontSize: '10pt', fill: '#888888', stroke: '#555555', strokeThickness: 1 }
     }
   };
   infoPanel = {
@@ -31,20 +32,17 @@ export default class Config {
       normal: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
       bad: { fontFamily: 'Open Sans', fontSize: '14pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#800000', strokeThickness: 2 }
     },
-    connectionLabel: {
-      fontFamily: 'Open Sans', fontSize: '12pt', fill: 0xBBBBBB, stroke: 0x808080, strokeThickness: 1,
-      align: 'center'
-    }
+    connectionLabel: { fontFamily: 'Open Sans', fontSize: '12pt', fill: 0xBBBBBB, stroke: 0x808080, strokeThickness: 1 }
   };
   playerInfoPanel = {
     lineStyle: { width: 1, color: 0x777777, alpha: 1 },
     fill: [0x777777, 0.5],
     label: {
       def: { fontFamily: 'Arial', fontSize: '12pt', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
-      property: { fontFamily: 'Arial', fontSize: '18pt', fill: '#777777', stroke: '#000000', strokeThickness: 2 },
-      lower: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#880000', strokeThickness: 2 },
-      best: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#008800', strokeThickness: 2 },
-      maxMass: { fontFamily: 'Arial', fontSize: '18pt', fill: '#BBBBBB', stroke: '#000088', strokeThickness: 2 }
+      property: { fontFamily: 'Arial', fontSize: '18pt', fontWeight: 'bold', fill: '#777777', stroke: '#000000', strokeThickness: 2 },
+      lower: { fontFamily: 'Arial', fontSize: '18pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#880000', strokeThickness: 2 },
+      best: { fontFamily: 'Arial', fontSize: '18pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#008800', strokeThickness: 2 },
+      maxMass: { fontFamily: 'Arial', fontSize: '18pt', fontWeight: 'bold', fill: '#BBBBBB', stroke: '#000088', strokeThickness: 2 }
     }
   };
   directionPanel = {

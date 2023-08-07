@@ -1,7 +1,7 @@
-import Panel from './ui/Panel.js';
-import Label from "./ui/Label.js";
-import { delayed_call } from './utils.js';
 import * as PIXI from "pixi.js";
+import { List } from "@pixi/ui";
+import Panel from './ui/Panel.js';
+import { delayed_call } from './utils.js';
 
 export default class PlayerInfoPanel extends Panel {
   #posX = 0;
@@ -27,7 +27,11 @@ export default class PlayerInfoPanel extends Panel {
     this.#textMass = new PIXI.Text('');
     this.#textMaxMass = new PIXI.Text('', this._config.label.maxMass);
 
-    this.#label = new Label({
+    this.#label = new List({
+      type: 'horizontal',
+      elementsMargin: 4,
+      horPadding: 4,
+      vertPadding: 2,
       children: [
         this.#textPosition,
         new PIXI.Text('mass:', this._config.label.def),
@@ -36,12 +40,9 @@ export default class PlayerInfoPanel extends Panel {
         this.#textMaxMass
       ]
     });
-    this.#label.x = 4;
-    this.#label.elementsMargin = 4;
     this.addChild(this.#label);
 
     this.#doUpdate();
-    this.#doUpdate(); // required for initial Label resizing
   }
 
   set posX(value) {
@@ -83,12 +84,12 @@ export default class PlayerInfoPanel extends Panel {
     this.#textPosition.text = `${this.#posX}:${this.#posY}`;
     this.#textMass.text = this.#mass;
     this.#textMaxMass.text = this.#maxMass;
-
-    const width = 8 + this.#label.getChildrenWidth();
-    this.resize(width, this.#label.height);
-
     this.#label.arrangeChildren();
-    this.#label.children[1].y = this.#label.height - this.#label.children[1].height - 2;
-    this.#label.children[3].y = this.#label.height - this.#label.children[3].height - 2;
+    this.#label.children[1].y = this.#label.height - this.#label.children[1].height;
+    this.#label.children[3].y = this.#label.height - this.#label.children[3].height;
+
+    const width = this.#label.width + 2 * this.#label.horPadding;
+    const height = this.#label.height + 2 * this.#label.vertPadding;
+    this.resize(width, height);
   }
 }

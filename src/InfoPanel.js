@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
+import { List } from "@pixi/ui";
 import Panel from './ui/Panel.js';
-import Label from "./ui/Label.js";
 import { delayed_call } from './utils.js';
 
 export class MovingAverage {
@@ -39,10 +39,11 @@ export default class InfoPanel extends Panel {
   #bytesIn = new MovingAverage();
   #bytesOut = new MovingAverage();
 
-  #labelFPS;
-  #labelPing;
+  #layout;
+  #textFPS = new PIXI.Text('');
+  #textPing = new PIXI.Text('');
   #label;
-  #connectionLabel = this.addChild(new PIXI.Text(''));
+  #connectionLabel = new PIXI.Text('');
 
   #styleDefault;
   #styleGood;
@@ -57,23 +58,28 @@ export default class InfoPanel extends Panel {
     this.#styleNormal = new PIXI.TextStyle(this._config.label.normal);
     this.#styleBad = new PIXI.TextStyle(this._config.label.bad);
 
-    this.#labelFPS = new PIXI.Text('');
-    this.#labelPing = new PIXI.Text('');
-
-    this.#label = new Label({
+    this.#label = new List({
+      type: 'horizontal',
+      elementsMargin: 4,
       children: [
         new PIXI.Text('FPS:', this.#styleDefault),
-        this.#labelFPS,
+        this.#textFPS,
         new PIXI.Text('ping:', this.#styleDefault),
-        this.#labelPing
+        this.#textPing
       ]
     });
-    this.#label.x = 4;
-    this.#label.elementsMargin = 4;
-    this.addChild(this.#label);
 
-    this.#connectionLabel.x = 4;
-    this.#connectionLabel.y = this.#label.y + this.#label.height;
+    this.#layout = this.addChild(
+      new List(
+        {
+          type: 'vertical',
+          horPadding: 4,
+          vertPadding: 2,
+          children: [this.#label, this.#connectionLabel]
+        }
+      )
+    );
+
     this.#connectionLabel.style = this._config.connectionLabel;
 
     this.#doUpdate();
@@ -116,10 +122,11 @@ export default class InfoPanel extends Panel {
   #doUpdate() {
     const fps = this.#fpsAverage.value();
 
-    this.#labelFPS.text = fps;
-    this.#labelFPS.style = fps >= 50 ? this.#styleGood : (fps >= 30 ? this.#styleNormal : this.#styleBad);
-    this.#labelPing.text = this.#ping;
-    this.#labelPing.style = this.#ping < 100 ? this.#styleGood : (this.#ping < 400 ? this.#styleNormal : this.#styleBad);
+    this.#textFPS.text = fps;
+    this.#textFPS.style = fps >= 50 ? this.#styleGood : (fps >= 30 ? this.#styleNormal : this.#styleBad);
+    this.#textPing.text = this.#ping;
+    this.#textPing.style = this.#ping < 100 ? this.#styleGood : (this.#ping < 400 ? this.#styleNormal : this.#styleBad);
+    this.#label.arrangeChildren();
 
     const bytesIn = this.#bytesIn.value();
     const bytesOut = this.#bytesOut.value();
@@ -127,10 +134,8 @@ export default class InfoPanel extends Panel {
     const packetsOut = this.#packetsOut.value();
     this.#connectionLabel.text = `${packetsIn}/${packetsOut} ${bytesIn}/${bytesOut}`;
 
-    const width = 8 + Math.max(this.#label.getChildrenWidth(), this.#connectionLabel.width);
-    const height = this.#label.height + this.#connectionLabel.height + 4;
+    const width = this.#layout.width + 2 * this.#layout.horPadding;
+    const height = this.#layout.height + 2 * this.#layout.vertPadding;
     this.resize(width, height);
-
-    this.#label.arrangeChildren();
   }
 }
