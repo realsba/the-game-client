@@ -1,0 +1,32 @@
+{
+  "name": "the-game-client",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/realsba/the-game-client.git"
+  },
+  "author": "Bohdan Sadovyak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/realsba/the-game-client/issues"
+  },
+  "homepage": "https://github.com/realsba/the-game-client#readme",
+  "dependencies": {
+    "@pixi/ui": "^0.8.1",
+    "pixi.js": "^7.2.4"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "vite": "^4.3.9"
+  }
+}
