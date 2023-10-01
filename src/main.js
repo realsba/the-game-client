@@ -3,6 +3,14 @@ import './style.css';
 import Config from './Config.js';
 import Game from './Game.js';
 
+import App from './App.vue';
+import { createApp, ref } from 'vue';
+import { registerPlugins } from '@/plugins';
+
+const app = createApp(App);
+registerPlugins(app);
+const vm = app.mount('#app');
+
 const config = new Config();
 const game = new Game(
   {
@@ -17,7 +25,8 @@ const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
 game.stage.eventMode = 'static';
 game.stage.hitArea = game.screen;
-game.startConnection('ws://127.0.0.1:9002');
+//game.startConnection('ws://127.0.0.1:9002');
+game.startConnection('ws://192.168.0.120:9002');
 game.stage.onmousemove = (e) => {
   game.setMousePosition(e.data.global);
 }
@@ -34,6 +43,11 @@ const resizeHandler = () => {
 }
 
 window.onresize = resizeHandler;
+
+function showStartDialog() {
+  const startDialog = vm.$refs.startDialog;
+  startDialog.show();
+}
 
 window.addEventListener('keydown', (event) => {
   if (event.repeat) {
@@ -60,7 +74,7 @@ window.addEventListener('keydown', (event) => {
   //   return;
   // }
   if (code === 'Escape') {
-    // toggleStartDialog(); TODO: implement
+    showStartDialog();
   } else if (code === 'Space') {
     game.actionSplit();
   } else if (code === 'Digit0') {
