@@ -4,12 +4,8 @@ import Config from './Config.js';
 import Game from './Game.js';
 
 import App from './App.vue';
-import { createApp, ref } from 'vue';
+import { createApp } from 'vue';
 import { registerPlugins } from '@/plugins';
-
-const app = createApp(App);
-registerPlugins(app);
-const vm = app.mount('#app');
 
 const config = new Config();
 const game = new Game(
@@ -21,6 +17,13 @@ const game = new Game(
   },
   config
 );
+
+const app = createApp(App);
+registerPlugins(app);
+app.provide('game', game);
+app.provide('config', config);
+const vm = app.mount('#app');
+
 const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
 game.stage.eventMode = 'static';
@@ -31,9 +34,7 @@ game.stage.onmousemove = (e) => {
   game.setMousePosition(e.data.global);
 }
 
-let elapsed = 0.0;
 game.ticker.add((delta) => {
-  const dt = delta / 60;
   room.infoPanel.fps = game.ticker.FPS;
   game.update();
 });
@@ -87,8 +88,5 @@ window.addEventListener('keydown', (event) => {
     game.decScale();
   }
 });
-
-window.play = (name, color) => game.actionPlay(name, color);
-window.help = () => console.log('To start the game, run play(name, color) in the console');
 
 resizeHandler();
