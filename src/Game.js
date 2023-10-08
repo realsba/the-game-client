@@ -104,6 +104,18 @@ export default class Game extends PIXI.Application {
     this.#onConnectionLoss = handler;
   }
 
+  set onPlay(handler) {
+    this.#onPlay = handler;
+  }
+
+  set onSpectate(handler) {
+    this.#onSpectate = handler;
+  }
+
+  set onFinish(handler) {
+    this.#onFinish = handler;
+  }
+
   #chooseTargetPlayer(event) {
     if (this.#isSpectateMode) {
       this.actionSpectate(event.target.playerId);

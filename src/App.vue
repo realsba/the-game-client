@@ -6,10 +6,12 @@ import { ref, inject, onMounted } from 'vue';
 
 const game = inject('game');
 const showConnectionLossAlert = ref(false);
+const showStartDialog = ref(false);
 const playStatus = ref(false);
 
 const onCloseConnectionLossAlert = () => {
   showConnectionLossAlert.value = false;
+  game.startConnection('ws://192.168.0.120:9002');
 };
 
 onMounted(() => {
@@ -17,12 +19,15 @@ onMounted(() => {
     showConnectionLossAlert.value = true;
   };
   game.onPlay = () => {
+    console.log('onPlay');
     playStatus.value = false;
   };
   game.onSpectate = () => {
+    console.log('onSpectate')
     playStatus.value = true;
   };
   game.onFinish = () => {
+    console.log('onFinish')
     playStatus.value = true;
   };
 });

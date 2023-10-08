@@ -1,36 +1,37 @@
-<script>
-export default {
-  data() {
-    return {
-      dialog: true,
-      colors: this.config.colors.slice(0, 12),
-      selectedColor: this.config.colors[0],
-      selectedColorIndex: 0,
-      name: '',
-    }
-  },
-  inject: ['game', 'config'],
-  methods: {
-    show() {
-      this.dialog = true;
-    },
-    hide() {
-      this.dialog = false;
-    },
-    selectColor(color, index) {
-      this.selectedColor = color;
-      this.selectedColorIndex = index;
-    },
-    play() {
-      this.game.actionPlay(this.name, this.selectedColorIndex);
-      this.hide();
-    },
-    spectate() {
-      this.game.actionSpectate(0);
-      this.hide();
-    }
-  }
-}
+<script setup>
+import {ref, inject} from 'vue';
+
+const game = inject('game');
+const config = inject('config');
+
+const dialog = ref(true);
+const colors = ref(config.colors.slice(0, 12));
+const selectedColor = ref(config.colors[0]);
+const selectedColorIndex = ref(0);
+const name = ref('');
+
+const show = () => {
+  dialog.value = true;
+};
+
+const hide = () => {
+  dialog.value = false;
+};
+
+const selectColor = (color, index) => {
+  selectedColor.value = color;
+  selectedColorIndex.value = index;
+};
+
+const play = () => {
+  game.actionPlay(name.value, selectedColorIndex.value);
+  hide();
+};
+
+const spectate = () => {
+  game.actionSpectate(0);
+  hide();
+};
 </script>
 
 <template>
