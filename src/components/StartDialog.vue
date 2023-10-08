@@ -2,7 +2,7 @@
 export default {
   data() {
     return {
-      dialog: false,
+      dialog: true,
       colors: this.config.colors.slice(0, 12),
       selectedColor: this.config.colors[0],
       selectedColorIndex: 0,

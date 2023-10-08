@@ -1,10 +1,9 @@
 <script setup>
-import { defineEmits } from 'vue';
-
-defineProps({model: Boolean});
+defineProps(['model']);
+const emits = defineEmits(['close']);
 
 const close = () => {
-   defineEmits().emit('close-alert');
+ emits('close');
 };
 </script>
 

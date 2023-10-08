@@ -38,7 +38,11 @@ export default class Game extends PIXI.Application {
   #lastPingTime;
   /** @type {Number} */
   #infoPanelLastUpdate = Date.now();
+
   #onConnectionLoss = null;
+  #onPlay = null;
+  #onSpectate = null;
+  #onFinish = null;
 
   #dispatcher = {
     1: stream => this.onPacketPong(stream),
@@ -348,9 +352,6 @@ export default class Game extends PIXI.Application {
     if (sid) {
       localStorage.setItem('sid', sid);
     }
-    // TODO: remove the following temporary code
-    this.actionPlay('sba', 2);
-    //this.actionSpectate(102);
   }
 
   /**
@@ -531,10 +532,9 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketFinish(stream) {
-    // TODO: implement
-    // if (service.onFinish) {
-    //   service.onFinish();
-    // }
+    if (this.#onFinish) {
+      this.#onFinish();
+    }
   }
 
   /**
@@ -547,10 +547,9 @@ export default class Game extends PIXI.Application {
     const maxMass = stream.readUInt32();
     this._room.play(playerId, x, y, maxMass);
     this.#isSpectateMode = false;
-    // TODO: implement
-    // if (service.onPacketPlayer) {
-    //   service.onPlay();
-    // }
+    if (this.#onPlay) {
+      this.#onPlay();
+    }
   }
 
   /**
@@ -563,10 +562,9 @@ export default class Game extends PIXI.Application {
     const maxMass = stream.readUInt32();
     this._room.play(playerId, x, y, maxMass);
     this.#isSpectateMode = true;
-    // TODO: implement
-    // if (service.onSpectate) {
-    //   service.onSpectate();
-    // }
+    if (this.#onSpectate) {
+      this.#onSpectate();
+    }
   }
 
   /**

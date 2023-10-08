@@ -6,6 +6,7 @@ import { ref, inject, onMounted } from 'vue';
 
 const game = inject('game');
 const showConnectionLossAlert = ref(false);
+const playStatus = ref(false);
 
 const onCloseConnectionLossAlert = () => {
   showConnectionLossAlert.value = false;
@@ -14,6 +15,15 @@ const onCloseConnectionLossAlert = () => {
 onMounted(() => {
   game.onConnectionLoss = () => {
     showConnectionLossAlert.value = true;
+  };
+  game.onPlay = () => {
+    playStatus.value = false;
+  };
+  game.onSpectate = () => {
+    playStatus.value = true;
+  };
+  game.onFinish = () => {
+    playStatus.value = true;
   };
 });
 </script>
