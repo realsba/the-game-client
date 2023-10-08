@@ -38,6 +38,7 @@ export default class Game extends PIXI.Application {
   #lastPingTime;
   /** @type {Number} */
   #infoPanelLastUpdate = Date.now();
+  #onConnectionLoss = null;
 
   #dispatcher = {
     1: stream => this.onPacketPong(stream),
@@ -93,6 +94,10 @@ export default class Game extends PIXI.Application {
         this.#mousePositionChanged = true;
       }
     });
+  }
+
+  set onConnectionLoss(handler) {
+    this.#onConnectionLoss = handler;
   }
 
   #chooseTargetPlayer(event) {
@@ -277,12 +282,9 @@ export default class Game extends PIXI.Application {
       checkReadyState();
     };
     this.#socket.onclose = () => {
-      console.log('ConnectionLoss') // TODO: remove
-
-      // TODO: implement
-      // if (service.onConnectionLoss) {
-      //   service.onConnectionLoss();
-      // }
+      if (this.#onConnectionLoss) {
+        this.#onConnectionLoss();
+      }
       this.#socket = null;
       this.#ready = false;
       this._room.init();

@@ -26,3 +26,8 @@ html::-webkit-scrollbar {
 #app .v-application {
   background-color: transparent;
 }
+
+#app .v-alert {
+  pointer-events: auto;
+  margin: 0 auto;
+}

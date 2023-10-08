@@ -26,6 +26,7 @@ export default {
       this.hide();
     },
     spectate() {
+      this.game.actionSpectate(0);
       this.hide();
     }
   }
