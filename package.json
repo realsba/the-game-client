@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "test": "mocha"
@@ -21,12 +21,19 @@
   },
   "homepage": "https://github.com/realsba/the-game-client#readme",
   "dependencies": {
-    "@pixi/ui": "^0.8.1",
-    "pixi.js": "^7.2.4"
+    "@mdi/font": "^7.2.96",
+    "@pixi/ui": "^0.9.0",
+    "pixi.js": "^7.3.1",
+    "roboto-fontface": "^0.10.0",
+    "vue": "^3.3.4",
+    "vuetify": "^3.3.19",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^4.3.4",
     "chai": "*",
     "mocha": "*",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "vite-plugin-vuetify": "^1.0.2"
   }
 }

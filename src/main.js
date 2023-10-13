@@ -3,6 +3,10 @@ import './style.css';
 import Config from './Config.js';
 import Game from './Game.js';
 
+import App from './App.vue';
+import { createApp } from 'vue';
+import { registerPlugins } from '@/plugins';
+
 const config = new Config();
 const game = new Game(
   {
@@ -13,18 +17,24 @@ const game = new Game(
   },
   config
 );
+
+const app = createApp(App);
+registerPlugins(app);
+app.provide('game', game);
+app.provide('config', config);
+const vm = app.mount('#app');
+
 const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
 game.stage.eventMode = 'static';
 game.stage.hitArea = game.screen;
-game.startConnection('ws://127.0.0.1:9002');
+//game.startConnection('ws://127.0.0.1:9002');
+game.startConnection('ws://192.168.0.120:9002');
 game.stage.onmousemove = (e) => {
   game.setMousePosition(e.data.global);
 }
 
-let elapsed = 0.0;
 game.ticker.add((delta) => {
-  const dt = delta / 60;
   room.infoPanel.fps = game.ticker.FPS;
   game.update();
 });
@@ -59,9 +69,7 @@ window.addEventListener('keydown', (event) => {
   //   }
   //   return;
   // }
-  if (code === 'Escape') {
-    // toggleStartDialog(); TODO: implement
-  } else if (code === 'Space') {
+  if (code === 'Space') {
     game.actionSplit();
   } else if (code === 'Digit0') {
     game.resetScale();
@@ -73,8 +81,5 @@ window.addEventListener('keydown', (event) => {
     game.decScale();
   }
 });
-
-window.play = (name, color) => game.actionPlay(name, color);
-window.help = () => console.log('To start the game, run play(name, color) in the console');
 
 resizeHandler();
