@@ -22,7 +22,7 @@ const app = createApp(App);
 registerPlugins(app);
 app.provide('game', game);
 app.provide('config', config);
-const vm = app.mount('#app');
+app.mount('#app');
 
 const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
