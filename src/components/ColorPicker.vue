@@ -14,8 +14,7 @@ const isSelected = (index) => props.modelValue === index;
     <v-col
       v-for="(color, index) in colors"
       :key="index"
-      md="3"
-      class="pa-1"
+      cols="3"
     >
       <v-btn
         :color="color"

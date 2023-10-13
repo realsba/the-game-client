@@ -45,11 +45,6 @@ const resizeHandler = () => {
 
 window.onresize = resizeHandler;
 
-function showStartDialog() {
-  const startDialog = vm.$refs.startDialog;
-  startDialog.show();
-}
-
 window.addEventListener('keydown', (event) => {
   if (event.repeat) {
     return;
@@ -74,9 +69,7 @@ window.addEventListener('keydown', (event) => {
   //   }
   //   return;
   // }
-  if (code === 'Escape') {
-    showStartDialog();
-  } else if (code === 'Space') {
+  if (code === 'Space') {
     game.actionSplit();
   } else if (code === 'Digit0') {
     game.resetScale();

@@ -1,41 +1,31 @@
 <script setup>
-import {ref, inject} from 'vue';
+import ColorPicker from './ColorPicker.vue';
 
-const game = inject('game');
-const config = inject('config');
+import { ref } from 'vue';
 
-const dialog = ref(true);
-const colors = ref(config.colors.slice(0, 12));
-const selectedColor = ref(config.colors[0]);
-const selectedColorIndex = ref(0);
-const name = ref('');
+const props = defineProps(['modelValue', 'colors', 'name', 'colorIndex']);
+const emit = defineEmits(['update:modelValue', 'play', 'spectate']);
 
-const show = () => {
-  dialog.value = true;
-};
+const colorIndex = ref(props.colorIndex);
+const name = ref('sba');
 
-const hide = () => {
-  dialog.value = false;
-};
+function play() {
+  emit('play', name.value !== null ? name.value : '', colorIndex.value);
+  closeDialog();
+}
 
-const selectColor = (color, index) => {
-  selectedColor.value = color;
-  selectedColorIndex.value = index;
-};
+function spectate() {
+  emit('spectate');
+  closeDialog();
+}
 
-const play = () => {
-  game.actionPlay(name.value, selectedColorIndex.value);
-  hide();
-};
-
-const spectate = () => {
-  game.actionSpectate(0);
-  hide();
-};
+function closeDialog() {
+  emit('update:modelValue', false);
+}
 </script>
 
 <template>
-  <v-dialog v-model="dialog" activator="parent" width="auto">
+  <v-dialog :model-value="modelValue" width="auto" persistent @keyup.enter="closeDialog">
     <v-card max-width="350">
       <v-card-title class="text-center">
         <v-icon left>mdi-account</v-icon>
@@ -49,20 +39,15 @@ const spectate = () => {
       </v-card-subtitle>
       <v-card-text>
         <v-row align="center">
-          <v-icon :color="selectedColor" size="60px">mdi-circle</v-icon>
           <v-text-field clearable label="Name" v-model="name"></v-text-field>
         </v-row>
         <v-row>
-          <v-col
-              v-for="(color, index) in colors"
-              :key="index"
-              cols="3"
-              md="3"
-              sm="4"
-              class="pa1-1"
-          >
-            <v-btn :color="color" class="ma1-0" @click="selectColor(color, index)" />
-          </v-col>
+          <ColorPicker v-model="colorIndex" :colors="colors"/>
+        </v-row>
+        <v-row>
+          Move your mouse to control your cell
+          Press Space to split
+          Press W to eject some mass
         </v-row>
       </v-card-text>
       <v-card-actions class="justify-end">
@@ -72,6 +57,3 @@ const spectate = () => {
     </v-card>
   </v-dialog>
 </template>
-
-<style>
-</style>
