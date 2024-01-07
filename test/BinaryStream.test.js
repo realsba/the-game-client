@@ -1,7 +1,3 @@
-import chai from 'chai';
-
-chai.should();
-
 import BinaryStream from '../src/BinaryStream.js';
 
 describe('BinaryStream', () => {

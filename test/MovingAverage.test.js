@@ -1,7 +1,3 @@
-import chai from 'chai';
-
-chai.should();
-
 import { MovingAverage } from '../src/InfoPanel.js';
 
 describe('MovingAverage', () => {

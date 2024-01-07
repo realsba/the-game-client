@@ -432,7 +432,6 @@ export default class Game extends PIXI.Application {
       if (def.isAvatar()) {
         def.playerId = stream.readUInt32();
         def.name = this.#players[def.playerId].name;
-        // def._protection = stream.readUInt32();
       }
       if (def.isMoving()) {
         def.vx = stream.readFloat();
@@ -452,7 +451,7 @@ export default class Game extends PIXI.Application {
     for (; cnt > 0; --cnt) {
       const id = stream.readUInt32();
       const maxSpeed = stream.readFloat();
-      const protection = stream.readUInt32();
+      const protection = stream.readUInt32(); // TODO: use bit flag on Cell layer
       selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed, protection: protection});
     }
 

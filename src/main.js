@@ -28,8 +28,7 @@ const room = game._room; // TODO: avoid using protected members
 document.body.appendChild(game.view);
 game.stage.eventMode = 'static';
 game.stage.hitArea = game.screen;
-//game.startConnection('ws://127.0.0.1:9002');
-game.startConnection('ws://192.168.0.120:9002');
+game.startConnection('ws://thegame:3333');
 game.stage.onmousemove = (e) => {
   game.setMousePosition(e.data.global);
 }

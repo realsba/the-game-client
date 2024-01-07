@@ -26,7 +26,7 @@ const handleKeyPress = (event) => {
 
 function updateConnectionLossAlert(value) {
   if (!value) {
-    game.startConnection('ws://192.168.0.120:9002');
+    game.startConnection('ws://thegame:3333');
   }
 }
 
