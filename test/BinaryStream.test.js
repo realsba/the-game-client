@@ -1,6 +1,7 @@
 import BinaryStream from '../src/BinaryStream.js';
 
 describe('BinaryStream', () => {
+
   describe('UInt8', () => {
     it('should return 255', () => {
       const stream = new BinaryStream();
@@ -10,6 +11,7 @@ describe('BinaryStream', () => {
       x.should.equal(255);
     });
   });
+
   describe('UInt16', () => {
     it('should return 65535', () => {
       const stream = new BinaryStream();
@@ -19,6 +21,7 @@ describe('BinaryStream', () => {
       x.should.equal(65535);
     });
   });
+
   describe('UInt32', () => {
     it('should return 4294967295', () => {
       const stream = new BinaryStream();
@@ -28,6 +31,7 @@ describe('BinaryStream', () => {
       x.should.equal(4294967295);
     });
   });
+
   describe('Float', () => {
     it('should return 3.14159265359', () => {
       const stream = new BinaryStream();
@@ -37,6 +41,7 @@ describe('BinaryStream', () => {
       x.should.be.closeTo(3.14159265359, 0.000001);
     });
   });
+
   describe('String', () => {
     it('should return "ABCDEF$%абвгдеєж12345678"', () => {
       const stream = new BinaryStream(new ArrayBuffer(64));
@@ -46,6 +51,7 @@ describe('BinaryStream', () => {
       x.should.equal('ABCDEF$%абвгдеєж12345678');
     });
   });
+
   describe('buffer()', () => {
     it('should shrink result buffer', () => {
       const stream = new BinaryStream(new ArrayBuffer(256));
@@ -56,6 +62,7 @@ describe('BinaryStream', () => {
       stream.buffer.byteLength.should.equal(11);
     });
   });
+
   describe('seek()', () => {
     it('should shrink result buffer', () => {
       const stream = new BinaryStream(new ArrayBuffer(256));
@@ -67,6 +74,7 @@ describe('BinaryStream', () => {
       stream.buffer.byteLength.should.equal(8);
     });
   });
+
   describe('constructor', () => {
     it('numeric argument should produce creation of new ArrayBuffer', () => {
       const stream = new BinaryStream(256);
@@ -74,4 +82,5 @@ describe('BinaryStream', () => {
       stream.buffer.byteLength.should.equal(0);
     });
   });
+
 });

@@ -1,6 +1,7 @@
 import { MovingAverage } from '../src/InfoPanel.js';
 
 describe('MovingAverage', () => {
+
   describe('value()', () => {
     it('should return 3', () => {
       const average = new MovingAverage();
@@ -21,4 +22,5 @@ describe('MovingAverage', () => {
       average.value().should.equal('--');
     });
   });
+
 });

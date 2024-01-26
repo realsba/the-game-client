@@ -1,13 +1,14 @@
 export function delayed_call(func, timeout = 250) {
   let timer;
+  let lastArgs;
   return (...args) => {
+    lastArgs = args;
     if (timer) {
       return;
     }
-    clearTimeout(timer);
     timer = setTimeout(() => {
       timer = undefined;
-      func.apply(this, args);
+      func.call(this, ...lastArgs);
     }, timeout);
   };
 }
