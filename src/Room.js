@@ -21,7 +21,6 @@ export default class Room extends PIXI.Container {
   #scaleRatio = 1;
   _scale = 1;
 
-  #tick = 0;
   _arrowPlayerX = 0;
   _arrowPlayerY = 0;
   #simulatedCells = new Set();
@@ -173,26 +172,23 @@ export default class Room extends PIXI.Container {
     }
   }
 
-  initFrame(now, tick, serverScale, cellDefs) {
+  initFrame(now, serverScale, cellDefs) {
     this.frame = this._frame;
     this.update = this._update;
     this.lastUpdate = now;
-    this.#tick = tick;
     this.#setServerScale(serverScale);
     cellDefs.forEach(def => this.modifyCell(def));
   };
 
-  _frame(now, tick, serverScale, cellDefs, removed, selfAvatarsInfo) {
-    this.#tick = tick;
+  _frame(now, serverScale, cellDefs, removed, selfAvatarsInfo) {
     this.#setServerScale(serverScale);
-    cellDefs.forEach(def => this.modifyCell(def));
     removed.forEach(id => this.removeCell(id));
+    cellDefs.forEach(def => this.modifyCell(def));
     selfAvatarsInfo.forEach(item => {
       /** @type {Avatar} */
       const avatar = this.#cells.get(item.id);
       if (avatar) {
         avatar._maxSpeed = item.maxSpeed; // TODO: avoid using protected members
-        avatar._protection = item.protection; // TODO: avoid using protected members
       }
     });
   };
@@ -211,9 +207,6 @@ export default class Room extends PIXI.Container {
     const playerForceRatio = 2.5;
     // TODO: avoid using protected members from this._player
     this._player._avatars.forEach(avatar => {
-      if (avatar._protection > this.#tick) {
-        return;
-      }
       let velocity = new Vec2D((this._player.x + this._pointerX - avatar._position.x), (this._player.y + this._pointerY - avatar._position.y));
       const dist = velocity.length();
       const k = dist < avatar._radius ? dist / avatar._radius : 1;

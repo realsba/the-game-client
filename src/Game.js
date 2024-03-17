@@ -415,7 +415,6 @@ export default class Game extends PIXI.Application {
    */
   onPacketFrame(stream) {
     const now = Date.now();
-    const tick = stream.readUInt32();
     const scale = stream.readFloat();
     const cellDefs = [];
     let cnt = stream.readUInt16();
@@ -451,11 +450,10 @@ export default class Game extends PIXI.Application {
     for (; cnt > 0; --cnt) {
       const id = stream.readUInt32();
       const maxSpeed = stream.readFloat();
-      const protection = stream.readUInt32(); // TODO: use bit flag on Cell layer
-      selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed, protection: protection});
+      selfAvatarsInfo.push({id: id, maxSpeed: maxSpeed});
     }
 
-    this._room.frame(now, tick, scale, cellDefs, removed, selfAvatarsInfo);
+    this._room.frame(now, scale, cellDefs, removed, selfAvatarsInfo);
     const arrowPlayerId = stream.readUInt32();
     if (arrowPlayerId) {
       this._room._arrowPlayerX = stream.readFloat();
