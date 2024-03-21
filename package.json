@@ -22,17 +22,17 @@
   "homepage": "https://github.com/realsba/the-game-client#readme",
   "dependencies": {
     "@mdi/font": "^7.2.96",
-    "@pixi/ui": "^0.10.3",
+    "@pixi/ui": "^1.0.0",
     "pixi.js": "^7.3.1",
-    "vue": "^3.4.15",
-    "vuetify": "^3.5.1"
+    "vue": "^3.4.21",
+    "vuetify": "^3.5.11"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.3",
-    "chai": "^5.0.3",
-    "mocha": "^10.2.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "chai": "^5.1.0",
+    "mocha": "^10.3.0",
     "sinon": "^17.0.1",
-    "vite": "^5.0.12",
-    "vite-plugin-vuetify": "^2.0.1"
+    "vite": "^5.2.2",
+    "vite-plugin-vuetify": "^2.0.3"
   }
 }
