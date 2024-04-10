@@ -22,10 +22,10 @@
   "homepage": "https://github.com/realsba/the-game-client#readme",
   "dependencies": {
     "@mdi/font": "^7.2.96",
-    "@pixi/ui": "^1.0.0",
-    "pixi.js": "^7.3.1",
+    "@pixi/ui": "^2.0.0",
+    "pixi.js": "^8.1.0",
     "vue": "^3.4.21",
-    "vuetify": "^3.5.11"
+    "vuetify": "^3.5.15"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

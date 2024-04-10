@@ -1,15 +1,19 @@
 import Control from './Control.js';
+import {Graphics} from 'pixi.js';
 
 export default class Panel extends Control {
+  _view = new Graphics();
+
   constructor(view, config) {
     super(view, config);
+
+    this.addChild(this._view);
   }
 
   draw() {
-    this.clear();
-    this.lineStyle(this._config.lineStyle);
-    this.beginFill(this._config.fill[0], this._config.fill[1]);
-    this.drawRect(0, 0, this._box.width, this._box.height);
-    this.endFill();
+    this._view.clear();
+    this._view.rect(0, 0, this._box.width, this._box.height);
+    this._view.fill(this._config.fill);
+    this._view.stroke(this._config.stroke);
   }
 }

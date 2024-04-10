@@ -8,15 +8,14 @@ import { createApp } from 'vue';
 import { registerPlugins } from '@/plugins';
 
 const config = new Config();
-const game = new Game(
-  {
-    resizeTo: window,
-    antialias: true,
-    autoDensity: true,
-    resolution: 2
-  },
-  config
-);
+const game = new Game(config);
+
+await game.init({
+  resizeTo: window,
+  antialias: true,
+  autoDensity: true,
+  resolution: 2
+});
 
 const app = createApp(App);
 registerPlugins(app);
@@ -24,8 +23,7 @@ app.provide('game', game);
 app.provide('config', config);
 app.mount('#app');
 
-const room = game._room; // TODO: avoid using protected members
-document.body.appendChild(game.view);
+document.body.appendChild(game.canvas);
 game.stage.eventMode = 'static';
 game.stage.hitArea = game.screen;
 game.startConnection('ws://thegame:3333');
@@ -33,8 +31,8 @@ game.stage.onmousemove = (e) => {
   game.setMousePosition(e.data.global);
 }
 
-game.ticker.add((delta) => {
-  room.infoPanel.fps = game.ticker.FPS;
+game.ticker.add(() => {
+  game.room.infoPanel.fps = game.ticker.FPS;
   game.update();
 });
 

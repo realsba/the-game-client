@@ -4,9 +4,9 @@ import Panel from './ui/Panel';
 import { delayed_call } from './utils.js';
 
 class Item extends List {
-  #labelNumber = new PIXI.Text('');
-  #labelName = new PIXI.Text('');
-  #labelMass = new PIXI.Text('');
+  #labelNumber = new PIXI.Text();
+  #labelName = new PIXI.Text();
+  #labelMass = new PIXI.Text();
 
   #styleSelf;
   #styleDef;
@@ -52,7 +52,7 @@ export default class Leaderboard extends Panel {
 
   #items = [];
   #playerId = 0;
-  #title = this.addChild(new PIXI.Text('Leaderboard'));
+  #title = this.addChild(new PIXI.Text({text: 'Leaderboard'}));
   #list = this.addChild(new List({type: 'vertical', vertPadding: 8, horPadding: 8}));
   #onMouseDown = null;
 

@@ -1,8 +1,9 @@
-import { Graphics, Rectangle } from 'pixi.js';
+import {Container, Rectangle} from 'pixi.js';
 
-export default class Control extends Graphics {
+export default class Control extends Container {
   #onResize = null;
   _box = new Rectangle();
+  _config = null;
 
   constructor(view, config) {
     super();

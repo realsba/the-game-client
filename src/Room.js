@@ -8,40 +8,41 @@ import { Cell, Avatar, Food, Mass, Virus, Mother } from './Cell.js';
 import Vec2D from './Vec2D.js';
 
 export default class Room extends PIXI.Container {
-  _visibleWidth = 1320;
-  _visibleHeight = 743;
+  _visibleWidth = 1320; // TODO: make private
+  _visibleHeight = 743; // TODO: make private
   #screenWidth = 640;
   #screenHeight = 480;
 
-  _originalWidth;
-  _originalHeight;
-  _viewportBuffer;
+  _originalWidth;      // TODO: make private
+  _originalHeight;     // TODO: make private
+  _viewportBuffer;     // TODO: make private
 
   #serverScale = 1;
   #scaleRatio = 1;
-  _scale = 1;
+  _scale4rename = 1; // TODO: rename
 
-  _arrowPlayerX = 0;
-  _arrowPlayerY = 0;
+  _arrowPlayerX = 0;   // TODO: make private
+  _arrowPlayerY = 0;   // TODO: make private
   #simulatedCells = new Set();
   #animatedCells = new Set();
 
   #cells = new Map();
-  _player = new Player();
+  _player = new Player(); // TODO: make private
 
   #gridLayer = this.addChild(new PIXI.Graphics());
-  #layers = this.addChild(new PIXI.Graphics());
-  #borderLayer = this.#layers.addChild(new PIXI.Graphics());
+  #borderLayer = this.addChild(new PIXI.Graphics());
+  #layers = this.addChild(new PIXI.Container());
   #foodLayer = this.#layers.addChild(new PIXI.Container());
   #cellsLayer = this.#layers.addChild(new PIXI.Container());
   #debugLayer = this.addChild(new PIXI.Graphics());
 
-  #textLeftTop = this.#debugLayer.addChild(
-    new PIXI.Text('', {fontFamily: 'Arial', fontSize: '12pt', fill: 0xff1010, align: 'center'})
-  );
-  #textRightBottom = this.#debugLayer.addChild(
-    new PIXI.Text('', {fontFamily: 'Arial', fontSize: '12pt', fill : 0xff1010, align : 'center'})
-  );
+  // TODO: implement
+  #textLeftTop = /*this.#debugLayer.addChild(*/
+    new PIXI.Text({style: {fontFamily: 'Arial', fontSize: '12pt', fill: 0xff1010, align: 'center'}})
+  /*)*/;
+  #textRightBottom = /*this.#debugLayer.addChild(*/
+    new PIXI.Text({style: {fontFamily: 'Arial', fontSize: '12pt', fill : 0xff1010, align : 'center'}})
+  /*)*/;
   #rightBottomX = 0;
 
   /** @type {Leaderboard} */
@@ -53,8 +54,8 @@ export default class Room extends PIXI.Container {
   /** @type {DirectionPanel} */
   #directionPanel;
 
-  _pointerX;
-  _pointerY;
+  _pointerX; // TODO: make private
+  _pointerY; // TODO: make private
 
   #onCreateAvatar;
 
@@ -100,7 +101,7 @@ export default class Room extends PIXI.Container {
   }
 
   init() {
-    this.frame = this.initFrame;
+    this.frame = this.#initFrame;
     this.update = () => {};
     this.lastUpdate = Date.now() + 1000;
     this.#cells.clear();
@@ -111,7 +112,7 @@ export default class Room extends PIXI.Container {
     this.#cellsLayer.removeChildren();
   }
 
-  draw() {
+  #draw() {
     this.#drawBorder();
     this.#drawGrid();
     this.#drawDebugLayer();
@@ -119,16 +120,13 @@ export default class Room extends PIXI.Container {
 
   #drawBorder() {
     this.#borderLayer.clear();
-    this.#borderLayer.lineStyle(this._config.borderLineStyle);
-    this.#borderLayer.drawRect(
-      0, 0, this._originalWidth * this._scale, this._originalHeight * this._scale
-    );
+    this.#borderLayer.rect(0, 0, this._originalWidth * this._scale4rename, this._originalHeight * this._scale4rename);
+    this.#borderLayer.stroke(this._config.borderLineStyle);
   }
 
   #drawGrid() {
     this.#gridLayer.clear();
-    this.#gridLayer.lineStyle(this._config.gridLineStyle);
-    const gridSize = this._config.gridSize * this._scale;
+    const gridSize = this._config.gridSize * this._scale4rename;
     for (let i = 0; i <= this.#screenWidth + gridSize; i += gridSize) {
       this.#gridLayer.moveTo(i, -gridSize);
       this.#gridLayer.lineTo(i, this.#screenHeight + gridSize);
@@ -137,17 +135,18 @@ export default class Room extends PIXI.Container {
       this.#gridLayer.moveTo(-gridSize, i);
       this.#gridLayer.lineTo(this.#screenWidth + gridSize, i);
     }
+    this.#gridLayer.stroke(this._config.gridLineStyle);
   }
 
   #drawDebugLayer() {
     this.#debugLayer.clear();
     if (this.#scaleRatio < 1) {
-      let width = this._visibleWidth * this.#serverScale * this._scale;
-      let height = this._visibleHeight * this.#serverScale * this._scale;
+      let width = this._visibleWidth * this.#serverScale * this._scale4rename;
+      let height = this._visibleHeight * this.#serverScale * this._scale4rename;
       let left = 0.5 * (this.#screenWidth - width);
       let top = 0.5 * (this.#screenHeight - height);
-      this.#debugLayer.lineStyle(1, 0x0000FF, 0.75);
-      this.#debugLayer.drawRect(left, top, width, height);
+      this.#debugLayer.rect(left, top, width, height);
+      this.#debugLayer.stroke({color: 0x0000FF, alpha: 0.75});
 
       const k = 1 + 2 * this._viewportBuffer;
       width *= k;
@@ -156,34 +155,30 @@ export default class Room extends PIXI.Container {
       top = 0.5 * (this.#screenHeight - height);
       const right = 0.5 * (this.#screenWidth + width);
       const bottom = 0.5 * (this.#screenHeight + height);
-      this.#debugLayer.lineStyle(1, 0x00FF00, 0.75);
-      this.#debugLayer.drawRect(left, top, width, height);
+      this.#debugLayer.rect(left, top, width, height);
+      this.#debugLayer.stroke({color: 0x00FF00, alpha: 0.75});
 
-      this.#textLeftTop.position.x = left;
-      this.#textLeftTop.position.y = top;
-      this.#textRightBottom.position.x = right - 120;
-      this.#textRightBottom.position.y = bottom - this.#textRightBottom.height;
+      this.#textLeftTop.position.set(left, top);
+      this.#textRightBottom.position.set(right - 120, bottom - this.#textRightBottom.height);
       this.#rightBottomX = right;
 
-      this.#debugLayer.lineStyle(1, 0x0000FF, 1);
-      this.#debugLayer.beginFill(0x0000FF, 0.85);
-      this.#debugLayer.drawCircle(0.5 * this.#screenWidth, 0.5 * this.#screenHeight, 10 * this._scale);
-      this.#debugLayer.endFill();
+      this.#debugLayer.circle(0.5 * this.#screenWidth, 0.5 * this.#screenHeight, 10 * this._scale4rename);
+      this.#debugLayer.fill({color: 0x0000FF, alpha: 0.85});
     }
   }
 
-  initFrame(now, serverScale, cellDefs) {
-    this.frame = this._frame;
-    this.update = this._update;
+  #initFrame(now, serverScale, cellDefs) {
+    this.frame = this.#frame;
+    this.update = this.#update;
     this.lastUpdate = now;
     this.#setServerScale(serverScale);
-    cellDefs.forEach(def => this.modifyCell(def));
+    cellDefs.forEach(def => this.#modifyCell(def));
   };
 
-  _frame(now, serverScale, cellDefs, removed, selfAvatarsInfo) {
+  #frame(now, serverScale, cellDefs, removed, selfAvatarsInfo) {
     this.#setServerScale(serverScale);
     removed.forEach(id => this.removeCell(id));
-    cellDefs.forEach(def => this.modifyCell(def));
+    cellDefs.forEach(def => this.#modifyCell(def));
     selfAvatarsInfo.forEach(item => {
       /** @type {Avatar} */
       const avatar = this.#cells.get(item.id);
@@ -193,7 +188,7 @@ export default class Room extends PIXI.Container {
     });
   };
 
-  _update() {
+  #update() {
     let now = Date.now();
     let dt = now - this.lastUpdate;
     this.lastUpdate = now;
@@ -245,13 +240,12 @@ export default class Room extends PIXI.Container {
       this.#textRightBottom.position.x = this.#rightBottomX - this.#textRightBottom.width;
     }
 
-    const x = 0.5 * this.#screenWidth - this._player.x * this._scale;
-    const y = 0.5 * this.#screenHeight - this._player.y * this._scale;
-    this.#layers.position.x = x;
-    this.#layers.position.y = y;
-    const gridSize = this._config.gridSize * this._scale;
-    this.#gridLayer.position.x = x % gridSize;
-    this.#gridLayer.position.y = y % gridSize;
+    const x = 0.5 * this.#screenWidth - this._player.x * this._scale4rename;
+    const y = 0.5 * this.#screenHeight - this._player.y * this._scale4rename;
+    this.#layers.position.set(x, y);
+    this.#borderLayer.position.set(x, y);
+    const gridSize = this._config.gridSize * this._scale4rename;
+    this.#gridLayer.position.set(x % gridSize, y % gridSize);
   }
 
   #placePlayerInfoPanel() {
@@ -287,9 +281,10 @@ export default class Room extends PIXI.Container {
   }
 
   #onChangeScale() {
-    this._scale = this.#scaleRatio * this.#screenHeight / (this._visibleHeight * this.#serverScale);
-    this.draw();
-    this.#cells.forEach(cell => cell.setScale(this._scale));
+    const scale = this.#scaleRatio * this.#screenHeight / (this._visibleHeight * this.#serverScale);
+    this._scale4rename = scale;
+    this.#layers.scale.set(scale, scale);
+    this.#draw();
   }
 
   play(playerId, x, y, maxMass) {
@@ -299,27 +294,27 @@ export default class Room extends PIXI.Container {
     this._player = new Player(playerId, x, y);
   };
 
-  modifyCell(def) {
+  #modifyCell(def) {
     /** @type {Cell} */
     let cell = this.#cells.get(def.id);
     if (cell) {
       cell.modify(def);
     } else {
       if (def.isFood()) {
-        cell = new Food(this, def, this._scale);
+        cell = new Food(this, def);
       } else if (def.isMass()) {
-        cell = new Mass(this, def, this._scale);
+        cell = new Mass(this, def);
       } else if (def.isAvatar()) {
-        cell = new Avatar(this, def, this._scale);
+        cell = new Avatar(this, def);
         if (this.#onCreateAvatar) {
           this.#onCreateAvatar(cell);
         }
       } else if (def.isVirus()) {
-        cell = new Virus(this, def, this._scale);
+        cell = new Virus(this, def);
       } else if (def.isMother()) {
-        cell = new Mother(this, def, this._scale);
+        cell = new Mother(this, def);
       } else {
-        cell = new Cell(this, def, this._scale);
+        cell = new Cell(this, def);
       }
       this.#cells.set(cell.id, cell);
       if (def.isFood()) {

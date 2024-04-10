@@ -1,5 +1,5 @@
-import * as PIXI from "pixi.js";
-import { List } from "@pixi/ui";
+import * as PIXI from 'pixi.js';
+import { List } from '@pixi/ui';
 import Panel from './ui/Panel.js';
 import { delayed_call } from './utils.js';
 
@@ -23,9 +23,9 @@ export default class PlayerInfoPanel extends Panel {
     this.#styleLower = new PIXI.TextStyle(this._config.label.lower);
     this.#styleBest = new PIXI.TextStyle(this._config.label.best);
 
-    this.#textPosition = new PIXI.Text('', this._config.label.property);
-    this.#textMass = new PIXI.Text('');
-    this.#textMaxMass = new PIXI.Text('', this._config.label.maxMass);
+    this.#textPosition = new PIXI.Text({style: this._config.label.property});
+    this.#textMass = new PIXI.Text();
+    this.#textMaxMass = new PIXI.Text({style: this._config.label.maxMass});
 
     this.#label = new List({
       type: 'horizontal',
@@ -34,9 +34,9 @@ export default class PlayerInfoPanel extends Panel {
       vertPadding: 2,
       children: [
         this.#textPosition,
-        new PIXI.Text('mass:', this._config.label.def),
+        new PIXI.Text({text: 'mass:', style: this._config.label.def}),
         this.#textMass,
-        new PIXI.Text('max:', this._config.label.def),
+        new PIXI.Text({text: 'max:', style: this._config.label.def}),
         this.#textMaxMass
       ]
     });

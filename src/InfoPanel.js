@@ -40,10 +40,10 @@ export default class InfoPanel extends Panel {
   #bytesOut = new MovingAverage();
 
   #layout;
-  #textFPS = new PIXI.Text('');
-  #textPing = new PIXI.Text('');
+  #textFPS = new PIXI.Text();
+  #textPing = new PIXI.Text();
   #label;
-  #connectionLabel = new PIXI.Text('');
+  #connectionLabel = new PIXI.Text();
 
   #styleDefault;
   #styleGood;
@@ -62,9 +62,9 @@ export default class InfoPanel extends Panel {
       type: 'horizontal',
       elementsMargin: 4,
       children: [
-        new PIXI.Text('FPS:', this.#styleDefault),
+        new PIXI.Text({text: 'FPS:', style: this.#styleDefault}),
         this.#textFPS,
-        new PIXI.Text('ping:', this.#styleDefault),
+        new PIXI.Text({text: 'ping:', style: this.#styleDefault}),
         this.#textPing
       ]
     });
@@ -75,6 +75,7 @@ export default class InfoPanel extends Panel {
           type: 'vertical',
           horPadding: 4,
           vertPadding: 2,
+          elementsMargin: -8,
           children: [this.#label, this.#connectionLabel]
         }
       )

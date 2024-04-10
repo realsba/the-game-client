@@ -34,7 +34,7 @@ function closeDialog() {
       <v-card-subtitle>
         <v-row>
         <v-col>Player settings</v-col>
-        <v-col class="text-right text-blue-grey">v1.0.0</v-col>
+        <v-col class="text-right text-blue-grey">v0.8.3</v-col>
         </v-row>
       </v-card-subtitle>
       <v-card-text>

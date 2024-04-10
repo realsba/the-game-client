@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import Vec2D from './Vec2D.js';
 
 function blur(color, x) {
@@ -21,66 +21,67 @@ function blur(color, x) {
 }
 
 class Animator {
-  _current = 0;
-  _finish = 0;
-  _step = 0;
-  _time = 0;
+  #current = 0;
+  #finish = 0;
+  #step = 0;
+  #time = 0;
 
   init(current, finish, time) {
-    this._current = current;
-    this._finish = finish;
-    this._step = (finish - current) / time;
-    this._time = time;
+    this.#current = current;
+    this.#finish = finish;
+    this.#step = (finish - current) / time;
+    this.#time = time;
   };
 
   isActive() {
-    return this._time > 0;
+    return this.#time > 0;
   };
 
   animate(dt) {
-    if (this._time > 0) {
-      this._time -= dt;
-      if (this._time > 0) {
-        this._current += this._step * dt;
+    if (this.#time > 0) {
+      this.#time -= dt;
+      if (this.#time > 0) {
+        this.#current += this.#step * dt;
       } else {
-        this._time = 0;
-        this._current = this._finish;
+        this.#time = 0;
+        this.#current = this.#finish;
       }
-      return this._current;
+      return this.#current;
     }
     return false;
   };
 }
 
 class PositionSmoother {
-  _step = null;
-  _time = 0;
+  #step = null;
+  #time = 0;
+  #current;
 
   constructor(current) {
-    this._current = current;
+    this.#current = current;
   }
 
   init(x, y, time) {
-    const step = new Vec2D((x - this._current.x) / time, (y - this._current.y) / time);
+    const step = new Vec2D((x - this.#current.x) / time, (y - this.#current.y) / time);
     if (step.squareLength() < 5 * 5) {
       return;
     }
-    this._step = step;
-    this._time = time;
+    this.#step = step;
+    this.#time = time;
   };
 
   isActive() {
-    return this._time > 0;
+    return this.#time > 0;
   };
 
   smooth(dt) {
-    if (this._time > 0) {
-      this._time -= dt;
-      if (this._time > 0) {
-        this._current.assignmentSum(this._step.scalarProduct(dt));
+    if (this.#time > 0) {
+      this.#time -= dt;
+      if (this.#time > 0) {
+        this.#current.assignmentSum(this.#step.scalarProduct(dt));
       } else {
-        this._current.assignmentSum(this._step.scalarProduct((this._time + dt) * dt));
-        this._time = 0;
+        this.#current.assignmentSum(this.#step.scalarProduct((this.#time + dt) * dt)); // TODO: revise
+        this.#time = 0;
       }
       return true;
     }
@@ -142,32 +143,32 @@ export class CellDef {
   };
 }
 
-export class Cell extends PIXI.Graphics {
+export class Cell extends Container {
+  #room;
   _force = new Vec2D();
   _radiusAnimator = new Animator();
   _alphaAnimator = new Animator();
+  #position = new Vec2D();
+  #positionSmoother = new PositionSmoother(this.#position);
+  _view = new Graphics();
 
-  constructor(room, def, scale) {
+  constructor(room, def) {
     super();
 
+    this.addChild(this._view);
     room.addChild(this);
 
-    this._room = room;
+    this.#room = room;
     this._id = def.id;
-    this._position = new Vec2D(def.x, def.y);
     this._velocity = new Vec2D(def.vx, def.vy);
     this._color = def.color;
     this._mass = def.mass;
     this._radius = def.radius;
     this._playerId = def.playerId;
     this._viewRadius = this._radius;
-    this._scale = scale;
+    this.#position.set(def.x, def.y);
 
-    this._positionSmoother = new PositionSmoother(this._position);
-
-    const position = this._position.scalarProduct(this._scale);
-    this.position.x = position.x;
-    this.position.y = position.y;
+    this.position.set(this.#position.x, this.#position.y);
 
     if (def.isNew()) {
       this.alpha = 0;
@@ -184,6 +185,10 @@ export class Cell extends PIXI.Graphics {
       }
       event.stopPropagation();
     }
+  }
+
+  get room() {
+    return this.#room;
   }
 
   get id() {
@@ -211,22 +216,14 @@ export class Cell extends PIXI.Graphics {
     this._velocity.set(def.vx, def.vy);
     this.radius = def.radius;
     this.mass = def.mass;
-    this._positionSmoother.init(def.x, def.y, 0.25);
+    this.#positionSmoother.init(def.x, def.y, 0.25);
   };
 
   draw() {
-    this.clear();
-    this.lineStyle(4, this._color, 1);
-    this.beginFill(this._color, 0.85);
-    this.drawCircle(0, 0, this._viewRadius * this._scale);
-    this.endFill();
-  };
-
-  setScale(scale) {
-    this._scale = scale;
-    this.position.x = this._position.x * this._scale;
-    this.position.y = this._position.y * this._scale;
-    this.draw();
+    this._view.clear();
+    this._view.circle(0, 0, this._viewRadius);
+    this._view.fill({color: this._color, alpha: 0.85});
+    this._view.stroke({color: this._color, alpha: 1, width: 4});
   };
 
   set radius(value) {
@@ -237,7 +234,7 @@ export class Cell extends PIXI.Graphics {
   };
 
   isSimulated() {
-    return !this._velocity.isZero() || this._positionSmoother.isActive();
+    return !this._velocity.isZero() || this.#positionSmoother.isActive();
   };
 
   isAnimated() {
@@ -249,15 +246,14 @@ export class Cell extends PIXI.Graphics {
     this._force.assignmentDifference(this._velocity.direction().scalarProduct(scalar));
     const acceleration = this._force.scalarDivision(this._mass);
     this._velocity.assignmentSum(acceleration.scalarProduct(dt));
-    this._position.assignmentSum(this._velocity.scalarProduct(dt));
-    this._positionSmoother.smooth(dt);
-    this.position.x = this._position.x * this._scale;
-    this.position.y = this._position.y * this._scale;
+    this.#position.assignmentSum(this._velocity.scalarProduct(dt));
+    this.#positionSmoother.smooth(dt);
+    this.position.set(this.#position.x, this.#position.y);
     this._force.reset();
   };
 
   simulate(dt) {
-    this.simulateInternal(dt, this._room._resistanceRatio); // TODO: use getter instead of Room::_resistanceRatio
+    this.simulateInternal(dt, this.#room._resistanceRatio); // TODO: use getter instead of Room::_resistanceRatio
   };
 
   animate(dt) {
@@ -279,25 +275,24 @@ export class Cell extends PIXI.Graphics {
 }
 
 export class Food extends Cell {
-  constructor(room, def, scale) {
-    super(room, def, scale);
+  constructor(room, def) {
+    super(room, def);
   }
 
   draw() {
-    this.clear();
-    this.beginFill(this._color, 1);
-    this.drawCircle(0, 0, this._viewRadius * this._scale);
-    this.endFill();
+    this._view.clear();
+    this._view.circle(0, 0, this._viewRadius);
+    this._view.fill({color: this._color});
   };
 
   simulate(dt) {
-    this.simulateInternal(dt, this._room._foodResistanceRatio);
+    this.simulateInternal(dt, this.room._foodResistanceRatio);
   };
 }
 
 export class Mass extends Cell {
-  constructor(room, def, scale) {
-    super(room, def, scale)
+  constructor(room, def) {
+    super(room, def)
 
     if (def.isNew()) {
       this.alpha = 0.25;
@@ -307,14 +302,11 @@ export class Mass extends Cell {
 }
 
 export class Avatar extends Cell {
-  static TEXT_SIZE = 24;
-  static TEXT_MASS_SIZE = 8;
-
   #text;
   #textMass;
 
-  constructor(room, def, scale) {
-    super(room, def, scale);
+  constructor(room, def) {
+    super(room, def);
 
     this._name = def.name;
     this._viewMass = this._mass;
@@ -322,45 +314,32 @@ export class Avatar extends Cell {
 
     this._massAnimator = new Animator();
 
-    this.#text = new PIXI.Text(
-      this._name,
-      {
+    this.#text = new Text({
+      text: this._name,
+      style: {
         fontFamily: 'Arial',
-        fontSize: this.#getFontSize(Avatar.TEXT_SIZE) + 'pt',
+        fontSize: '30pt',
         fontWeight: 'bold',
         fill: 0xFFFFFF,
         stroke: blur(def.color, 80),
-        strokeThickness: 2,
         align: 'center'
       }
-    );
-    this.#textMass = new PIXI.Text(
-      this._viewMass,
-      {
-        'fontFamily': 'Arial',
-        'fontSize': this.#getFontSize(Avatar.TEXT_MASS_SIZE) + 'pt',
-        'fontWeight': 'bold',
-        'fill': 0xFFFFFF,
-        'stroke': blur(def.color, 80),
-        'strokeThickness': 2,
-        'align': 'center'
+    });
+    this.#textMass = new Text({
+      text: this._viewMass,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: '14pt',
+        fontWeight: 'bold',
+        fill: 0xFFFFFF,
+        stroke: blur(def.color, 80),
+        align: 'center'
       }
-    );
+    });
     this.addChild(this.#text);
     this.addChild(this.#textMass);
     this.updateTextPosition();
   }
-
-  #getFontSize(baseSize) {
-    return Math.max((baseSize * this._scale) >> 0, 8);
-  }
-
-  setScale(scale) {
-    super.setScale(scale);
-    this.#text.style.fontSize = this.#getFontSize(Avatar.TEXT_SIZE) + 'pt';
-    this.#textMass.style.fontSize = this.#getFontSize(Avatar.TEXT_MASS_SIZE) + 'pt';
-    this.updateTextPosition();
-  };
 
   updateTextPosition() {
     this.#text.position.x = -this.#text.width / 2;
@@ -400,8 +379,8 @@ export class Avatar extends Cell {
 }
 
 export class Virus extends Cell {
-  constructor(room, def, scale) {
-    super(room, def, scale);
+  constructor(room, def) {
+    super(room, def);
     if (def.isNew()) {
       this._viewRadius = 0;
       this._radiusAnimator.init(0, this._radius, 1);
@@ -413,19 +392,18 @@ export class Virus extends Cell {
     const n = 16;
     let alpha = 0;
     const angle = Math.PI / n;
-    const r1 = this._viewRadius * this._scale;
-    const r2 = 1.075 * this._viewRadius * this._scale;
+    const r1 = this._viewRadius;
+    const r2 = 1.075 * this._viewRadius;
     for (let i = 0; i <= n; ++i) {
       path.push(r1 * Math.sin(alpha), r1 * Math.cos(alpha));
       alpha += angle;
       path.push(r2 * Math.sin(alpha), r2 * Math.cos(alpha));
       alpha += angle;
     }
-    this.clear();
-    this.lineStyle(4, this._color, 1);
-    this.beginFill(this._color, 0.85);
-    this.drawPolygon(path);
-    this.endFill();
+    this._view.clear();
+    this._view.poly(path);
+    this._view.fill({color: this._color, alpha: 0.85});
+    this._view.stroke({color: this._color, alpha: 1, width: 4});
   };
 
   isAnimated() {

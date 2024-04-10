@@ -1,61 +1,53 @@
-import { TEXT_GRADIENT } from 'pixi.js';
-
 export default class Config {
   gridSize = 512;
   gridLineStyle = { width: 1, color: '#303030', alpha: 1 };
   borderLineStyle = { width: 2, color: '#808080', alpha: 0.75 };
   leaderboard = {
-    lineStyle: { width: 1, color: '#777777', alpha: 1 },
-    fill: ['#777777', 0.5],
+    stroke: { width: 1, color: '#777777', alpha: 1 },
+    fill: { color: '#777777', alpha: 0.5 },
     title: {
       fontFamily: 'Junegull',
-      fontSize: '16pt',
+      fontSize: '22pt',
       fontWeight: 'bold',
-      fill: ['#505050', '#A0A0A0'],
-      fillGradientType: TEXT_GRADIENT.LINEAR_VERTICAL,
-      stroke: '#303030',
-      strokeThickness: 2
+      fill: '#A0A0A0',
+      stroke: '#808080'
     },
     list: {
-      number: { fontFamily: 'Arial', fontSize: '12pt', fill: '#777777', stroke: '#000000', strokeThickness: 1 },
+      number: { fontFamily: 'Arial', fontSize: '12pt', fill: '#777777', stroke: '#555555' },
       def: {
         fontFamily: 'Arial',
         fontSize: '16pt',
         fontWeight: 'bold',
         fill: '#999999',
-        stroke: '#555555',
-        strokeThickness: 1
+        stroke: '#555555'
       },
       self: {
         fontFamily: 'Arial',
         fontSize: '16pt',
         fontWeight: 'bold',
         fill: '#BB8080',
-        stroke: '#A04040',
-        strokeThickness: 1
+        stroke: '#A04040'
       },
-      mass: { fontFamily: 'Arial', fontSize: '10pt', fill: '#888888', stroke: '#555555', strokeThickness: 1 }
+      mass: { fontFamily: 'Arial', fontSize: '10pt', fill: '#888888', stroke: '#555555' }
     }
   };
   infoPanel = {
-    lineStyle: { width: 1, color: '#777777', alpha: 1 },
-    fill: ['#777777', 0.5],
+    stroke: { width: 1, color: '#777777', alpha: 1 },
+    fill: {color: '#777777', alpha: 0.5},
     label: {
       def: {
         fontFamily: 'Open Sans',
         fontSize: '14pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#808080',
-        strokeThickness: 2
+        stroke: '#808080'
       },
       good: {
         fontFamily: 'Open Sans',
         fontSize: '14pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#008000',
-        strokeThickness: 2
+        stroke: '#008000'
       },
       normal: {
         fontFamily: 'Open Sans',
@@ -63,48 +55,49 @@ export default class Config {
         fontWeight: 'bold',
         fill: '#BBBBBB',
         stroke: '#000000',
-        strokeThickness: 2
       },
       bad: {
         fontFamily: 'Open Sans',
         fontSize: '14pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#800000', strokeThickness: 2
+        stroke: '#800000'
       }
     },
     connectionLabel: {
-      fontFamily: 'Open Sans', fontSize: '12pt', fill: '#BBBBBB', stroke: '#808080', strokeThickness: 1
+      fontFamily: 'Open Sans', fontSize: '12pt', fill: '#BBBBBB', stroke: '#808080'
     }
   };
   playerInfoPanel = {
-    lineStyle: { width: 1, color: '#777777', alpha: 1 },
-    fill: ['#777777', 0.5],
+    stroke: { width: 1, color: '#777777', alpha: 1 },
+    fill: {color: '#777777', alpha: 0.5},
     label: {
-      def: { fontFamily: 'Arial', fontSize: '12pt', fill: '#BBBBBB', stroke: '#000000', strokeThickness: 2 },
+      def: {
+        fontFamily: 'Arial',
+        fontSize: '12pt',
+        fill: '#BBBBBB',
+        stroke: '#000000'
+      },
       property: {
         fontFamily: 'Arial',
         fontSize: '18pt',
         fontWeight: 'bold',
         fill: '#777777',
-        stroke: '#000000',
-        strokeThickness: 2
+        stroke: '#000000'
       },
       lower: {
         fontFamily: 'Arial',
         fontSize: '18pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#880000',
-        strokeThickness: 2
+        stroke: '#880000'
       },
       best: {
         fontFamily: 'Arial',
         fontSize: '18pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#008800',
-        strokeThickness: 2
+        stroke: '#008800'
       },
       maxMass: {
         fontFamily: 'Arial',
@@ -112,7 +105,6 @@ export default class Config {
         fontWeight: 'bold',
         fill: '#BBBBBB',
         stroke: '#000088',
-        strokeThickness: 2
       }
     }
   };
@@ -125,8 +117,7 @@ export default class Config {
         fontSize: '20pt',
         fontWeight: 'bold',
         fill: '#BBBBBB',
-        stroke: '#000000',
-        strokeThickness: 2
+        stroke: '#000000'
       }
     }
   };
