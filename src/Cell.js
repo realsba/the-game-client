@@ -152,6 +152,12 @@ export class Cell extends Container {
   #positionSmoother = new PositionSmoother(this.#position);
   _view = new Graphics();
 
+  static #resistanceRatio = 0;
+
+  static set resistanceRatio(value) {
+    Cell.#resistanceRatio = value;
+  }
+
   constructor(room, def) {
     super();
 
@@ -185,6 +191,10 @@ export class Cell extends Container {
       }
       event.stopPropagation();
     }
+  }
+
+  get resistanceRatio() {
+    return Cell.#resistanceRatio;
   }
 
   get room() {
@@ -241,8 +251,8 @@ export class Cell extends Container {
     return this._radiusAnimator.isActive() || this._alphaAnimator.isActive();
   };
 
-  simulateInternal(dt, resistanceRatio) {
-    const scalar = this._radius * resistanceRatio;
+  simulate(dt) {
+    const scalar = this._radius * this.resistanceRatio;
     this._force.assignmentDifference(this._velocity.direction().scalarProduct(scalar));
     const acceleration = this._force.scalarDivision(this._mass);
     this._velocity.assignmentSum(acceleration.scalarProduct(dt));
@@ -250,10 +260,6 @@ export class Cell extends Container {
     this.#positionSmoother.smooth(dt);
     this.position.set(this.#position.x, this.#position.y);
     this._force.reset();
-  };
-
-  simulate(dt) {
-    this.simulateInternal(dt, this.#room._resistanceRatio); // TODO: use getter instead of Room::_resistanceRatio
   };
 
   animate(dt) {
@@ -275,18 +281,24 @@ export class Cell extends Container {
 }
 
 export class Food extends Cell {
+  static #resistanceRatio = 0;
+
+  static set resistanceRatio(value) {
+    Food.#resistanceRatio = value;
+  }
+
   constructor(room, def) {
     super(room, def);
+  }
+
+  get resistanceRatio() {
+    return Food.#resistanceRatio;
   }
 
   draw() {
     this._view.clear();
     this._view.circle(0, 0, this._viewRadius);
     this._view.fill({color: this._color});
-  };
-
-  simulate(dt) {
-    this.simulateInternal(dt, this.room._foodResistanceRatio);
   };
 }
 

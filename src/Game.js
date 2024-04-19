@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import BinaryStream from './BinaryStream.js';
-import { PlayerInfo } from './Player.js';
+import {PlayerInfo} from './Player.js';
 import Room from './Room.js';
-import { CellDef } from "./Cell.js";
+import {CellDef, Cell, Food, Mother} from "./Cell.js";
 
 export default class Game extends PIXI.Application {
   #config;
@@ -60,7 +60,8 @@ export default class Game extends PIXI.Application {
     12: stream => this.onPacketPlay(stream),
     13: stream => this.onPacketSpectate(stream),
     14: stream => this.onPacketFinish(stream),
-    15: stream => this.onPacketChatMessage(stream)
+    15: stream => this.onPacketChatMessage(stream),
+    16: stream => this.onPacketChangeTargetPlayer(stream),
   };
 
   constructor(config) {
@@ -380,9 +381,9 @@ export default class Game extends PIXI.Application {
     const viewportBase = stream.readUInt16();
     const viewportBuffer = stream.readFloat();
     const aspectRatio = stream.readFloat();
-    const resistanceRatio = stream.readFloat();
+    Cell.resistanceRatio = stream.readFloat();
     const elasticityRatio = stream.readFloat(); // TODO: this field does not used, remove from the protocol
-    const foodResistanceRatio = stream.readFloat();
+    Food.resistanceRatio = stream.readFloat();
     let count = stream.readUInt8();
     for (; count > 0; --count) {
       const id = stream.readUInt32();
@@ -407,8 +408,6 @@ export default class Game extends PIXI.Application {
     this.#room._visibleHeight = viewportBase;
     this.#room._visibleWidth = viewportBase * aspectRatio;
     this.#room._viewportBuffer = viewportBuffer;
-    this.#room._resistanceRatio = resistanceRatio;
-    this.#room._foodResistanceRatio = foodResistanceRatio;
     this.#room.setScreenSize(this.#screenWidth, this.#screenHeight); // TODO: fix
     this.#ready = true;
   }
@@ -417,39 +416,54 @@ export default class Game extends PIXI.Application {
    * @param {BinaryStream} stream
    */
   onPacketFrame(stream) {
+    const FLAG_SCALE = 1;
+    const FLAG_SYNC_CELLS = 2;
+    const FLAG_REMOVED_IDS = 4;
+    const FLAG_DIRECTION_TO_TARGET_PLAYER = 8;
+
     const now = Date.now();
-    const scale = stream.readFloat();
+    const flags = stream.readUInt8();
+    const scale = flags & FLAG_SCALE ? stream.readFloat() : 1;
     const cellDefs = [];
-    let cnt = stream.readUInt16();
-    for (; cnt > 0; --cnt) {
-      const def = new CellDef();
-      cellDefs.push(def);
-      def.type = stream.readUInt8();
-      def.id = stream.readUInt32();
-      def.x = stream.readFloat();
-      def.y = stream.readFloat();
-      def.mass = stream.readUInt32();
-      def.radius = stream.readUInt16();
-      def.color = stream.readUInt8();
-      if (def.isAvatar()) {
-        def.playerId = stream.readUInt32();
-        def.name = this.#players[def.playerId].name;
+    if (flags & FLAG_SYNC_CELLS) {
+      let cnt = stream.readUInt16();
+      for (; cnt > 0; --cnt) {
+        const def = new CellDef();
+        cellDefs.push(def);
+        def.type = stream.readUInt8();
+        def.id = stream.readUInt32();
+        def.x = stream.readFloat();
+        def.y = stream.readFloat();
+        def.mass = stream.readUInt32();
+        def.radius = stream.readUInt16();
+        def.color = stream.readUInt8();
+        if (def.isAvatar()) {
+          def.playerId = stream.readUInt32();
+          def.name = this.#players[def.playerId].name;
+        }
+        if (def.isMoving()) {
+          def.vx = stream.readFloat();
+          def.vy = stream.readFloat();
+        }
+        def.color = this.#config.colors[def.color];
       }
-      if (def.isMoving()) {
-        def.vx = stream.readFloat();
-        def.vy = stream.readFloat();
-      }
-      def.color = this.#config.colors[def.color];
     }
 
     const removed = [];
-    cnt = stream.readUInt16();
-    for (; cnt > 0; --cnt) {
-      removed.push(stream.readUInt32());
+    if (flags & FLAG_REMOVED_IDS) {
+      let cnt = stream.readUInt16();
+      for (; cnt > 0; --cnt) {
+        removed.push(stream.readUInt32());
+      }
+    }
+
+    if (flags & FLAG_DIRECTION_TO_TARGET_PLAYER) {
+      const encodedAngle = stream.readUInt8();
+      this.#room.directionToTargetPlayer = encodedAngle * (2 * Math.PI / 255) - Math.PI;
     }
 
     const selfAvatarsInfo = [];
-    cnt = stream.readUInt8();
+    let cnt = stream.readUInt8();
     for (; cnt > 0; --cnt) {
       const id = stream.readUInt32();
       const maxSpeed = stream.readFloat();
@@ -457,17 +471,6 @@ export default class Game extends PIXI.Application {
     }
 
     this.#room.frame(now, scale, cellDefs, removed, selfAvatarsInfo);
-    const arrowPlayerId = stream.readUInt32();
-    if (arrowPlayerId) {
-      // TODO: avoid using protected members from this.#room
-      this.#room._arrowPlayerX = stream.readFloat();
-      this.#room._arrowPlayerY = stream.readFloat();
-      this.#room.directionPanel.playerInfo = this.#players[arrowPlayerId];
-      this.#room.directionPanel.visible = true;
-    } else {
-      this.#room.directionPanel.playerInfo = null;
-      this.#room.directionPanel.visible = false;
-    }
   }
 
   /**
@@ -596,6 +599,14 @@ export default class Game extends PIXI.Application {
     // $rootScope['chatMessages'].push(msg);
     // $rootScope['chatHistory'].unshift(msg);
     // $rootScope.$apply();
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   */
+  onPacketChangeTargetPlayer(stream) {
+    const targetPlayerId = stream.readUInt32();
+    this.#room.targetPlayer = this.#players[targetPlayerId];
   }
 
   getPlayers() {

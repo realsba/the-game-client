@@ -4,9 +4,11 @@
 ![GitHub](https://img.shields.io/github/license/realsba/the-game-client)
 ![GitHub issues](https://img.shields.io/github/issues/realsba/the-game-client)
 
-This project is the browser client for the multiplayer game "The Game." It allows players to interact with the game 
+This project is the browser client for the multiplayer game "The Game". It allows players to interact with the game 
 using modern web development technologies and frameworks such as Vue.js, Vuetify, and PIXI.js. Players can enjoy
 exciting gameplay and interact with each other in the virtual world, similar to agar.io.
+
+![](media/Screenshot01.png)
 
 ## Installation
 

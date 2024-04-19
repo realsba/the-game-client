@@ -21,8 +21,6 @@ export default class Room extends PIXI.Container {
   #scaleRatio = 1;
   _scale4rename = 1; // TODO: rename
 
-  _arrowPlayerX = 0;   // TODO: make private
-  _arrowPlayerY = 0;   // TODO: make private
   #simulatedCells = new Set();
   #animatedCells = new Set();
 
@@ -98,6 +96,22 @@ export default class Room extends PIXI.Container {
 
   set onCreateAvatar(value) {
     this.#onCreateAvatar = value;
+  }
+
+  set targetPlayer(playerInfo) {
+    if (playerInfo) {
+      this.#directionPanel.playerInfo = playerInfo;
+      this.#directionPanel.visible = true;
+    } else {
+      this.#directionPanel.playerInfo = null;
+      this.#directionPanel.visible = false;
+    }
+  }
+
+  set directionToTargetPlayer(angle) {
+    if (this.#directionPanel.visible) {
+      this.#directionPanel.setAngle(angle);
+    }
   }
 
   init() {
@@ -194,12 +208,7 @@ export default class Room extends PIXI.Container {
     this.lastUpdate = now;
     dt *= 0.001;
 
-    if (this.#directionPanel.visible) {
-      const angle = Math.atan2(this._arrowPlayerY - this._player.y, this._arrowPlayerX - this._player.x);
-      this.#directionPanel.setAngle(angle);
-    }
-
-    const playerForceRatio = 2.5;
+    const pointerForceRatio = 2.5;
     // TODO: avoid using protected members from this._player
     this._player._avatars.forEach(avatar => {
       let velocity = new Vec2D((this._player.x + this._pointerX - avatar._position.x), (this._player.y + this._pointerY - avatar._position.y));
@@ -207,8 +216,8 @@ export default class Room extends PIXI.Container {
       const k = dist < avatar._radius ? dist / avatar._radius : 1;
       velocity = velocity.direction().scalarProduct(k * avatar._maxSpeed);
       const force = new Vec2D(
-        (velocity.x - avatar._velocity.x) * avatar._mass * playerForceRatio,
-        (velocity.y - avatar._velocity.y) * avatar._mass * playerForceRatio
+        (velocity.x - avatar._velocity.x) * avatar._mass * pointerForceRatio,
+        (velocity.y - avatar._velocity.y) * avatar._mass * pointerForceRatio
       );
       avatar._force.assignmentSum(force);
     });
